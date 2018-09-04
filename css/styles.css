@@ -129,11 +129,10 @@ nav h1 a {
   font-size: 0.917rem;
   height: 2.5rem;
   letter-spacing: 0;
-  margin: 1rem 1rem .5rem;
+  margin: 1rem 0rem .5rem 1rem;
   padding: 0 1rem;
-  width: calc(100% - 2rem);
+  width: 180px;
   box-sizing: border-box;
-  /*width: 200px;*/
 }
 
 /* ====================== Restaurant Listing ====================== */
@@ -290,6 +289,10 @@ nav h1 a {
     padding-top: .75em;
     padding-bottom: .75em;
   }
+
+  .filter-options select {
+    width: calc(100% - 2rem);
+  }
 }
 
 @media (min-width: 500px) {
@@ -308,5 +311,24 @@ nav h1 a {
   #restaurants-list .restaurant-info {
     width: 40%;
     padding-bottom: 0;
+  }
+}
+
+
+@media (min-width: 550px) {
+  #restaurants-list .restaurant-photo {
+    width: 50%;
+  }
+  #restaurants-list .restaurant-info {
+    width: 50%;
+  }
+}
+
+@media (min-width: 600px) {
+  #restaurants-list .restaurant-photo {
+    width: 40%;
+  }
+  #restaurants-list .restaurant-info {
+    width: 60%;
   }
 }
