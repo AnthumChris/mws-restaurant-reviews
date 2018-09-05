@@ -72,13 +72,14 @@ fillCuisinesHTML = (cuisines = self.cuisines) => {
  */
 window.initMap = () => {
   let loc = {
-    lat: 40.722216,
-    lng: -73.987501
+    lat: 40.715216,
+    lng: -73.969501
   };
   self.map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 12,
+    zoom: 11,
     center: loc,
-    scrollwheel: false
+    scrollwheel: false,
+    mapTypeControl: false
   });
   updateRestaurants();
 }
