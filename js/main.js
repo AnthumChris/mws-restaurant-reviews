@@ -141,7 +141,7 @@ createRestaurantHTML = (restaurant) => {
         imgWrapper = document.createElement('div'),
         info = document.createElement('div'),
         image = document.createElement('img'),
-        name = document.createElement('h1'),
+        name = document.createElement('h2'),
         neighborhood = document.createElement('p')
         address = document.createElement('p'),
         more = document.createElement('a');

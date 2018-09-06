@@ -170,7 +170,7 @@ main,
   padding: 0;
   width: 100%;
 }
-#restaurants-list li h1 {
+#restaurants-list li h2 {
   color: #f18200;
   font-size: 1.167rem;
   font-weight: 200;
@@ -284,7 +284,7 @@ main,
     margin: 2rem 1rem;
     box-shadow: 0 0 5px 0 #ccc;
   }
-  #restaurants-list li h1 {
+  #restaurants-list li h2 {
     margin-top: .5rem;
   }
   #restaurants-list .restaurant-photo {
@@ -330,7 +330,7 @@ main,
     margin-right: 0;
     box-shadow: 0 0 5px 0 #ccc;
   }
-  #restaurants-list li h1 {
+  #restaurants-list li h2 {
     margin-top: 1rem;
   }
   #restaurants-list .restaurant-photo {
