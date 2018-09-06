@@ -55,10 +55,18 @@ header a {
 
 main {
   min-height: 100%;
-  max-width: 1250px;
-  margin: 0 auto;
   overflow: hidden;
 }
+nav {
+  background: #fff;
+}
+
+main,
+#breadcrumb {
+  max-width: 1250px;
+  margin: 0 auto;
+}
+
 #footer {
   background-color: #444;
   color: #aaa;
@@ -71,17 +79,16 @@ main {
 
 /* ====================== Navigation ====================== */
 #breadcrumb {
-    padding: 10px 40px 16px;
+    padding: 0 .5rem;
     list-style: none;
-    background-color: #eee;
-    font-size: 17px;
-    margin: 0;
-    width: calc(50% - 80px);
+    font-size: 1rem;
+    margin: 0 auto;
 }
 
 /* Display list items side by side */
 #breadcrumb li {
     display: inline;
+    font-size: 1em;
 }
 
 /* Add a slash symbol (/) before/behind each list item */
@@ -92,13 +99,15 @@ main {
 }
 
 /* Add a color to all links inside the list */
-#breadcrumb li a {
+#breadcrumb a {
+    display: inline-block;
+    padding: 1em 0;
     color: #0275d8;
     text-decoration: none;
 }
 
 /* Add a color on mouse-over */
-#breadcrumb li a:hover {
+#breadcrumb a:hover {
     color: #01447e;
     text-decoration: underline;
 }
