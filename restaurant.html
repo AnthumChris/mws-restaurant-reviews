@@ -8,7 +8,7 @@
   <title>Restaurant Info</title>
 </head>
 
-<body>
+<body class="restaurant-details">
   <header>
     <a href="/">Restaurant Reviews</a>
   </header>
@@ -20,16 +20,29 @@
   </nav>
 
   <main>
-    <h1 id="restaurant-name"></h1>
-    <section id="map-container">
-      <div id="map"></div>
-    </section>
+    <div class="info">
+      <div class="map"><div id="map"></div></div>
+      <div class="title"><h1 class="restaurant-name"></h1></div>
+      <div class="image-hours">
+        <div class="image">
+          <img id="restaurant-img" />
+          <p id="restaurant-cuisine"></p>
+        </div>
+        <div class="hours">
+          <p id="restaurant-address"></p>
+          <table id="restaurant-hours"></table>
+        </div>
+      </div>
+    </div>
+
+    <style>
+    </style>
+
+
 
     <section id="restaurant-container">
-      <img id="restaurant-img">
-      <p id="restaurant-cuisine"></p>
-      <p id="restaurant-address"></p>
-      <table id="restaurant-hours"></table>
+
+
     </section>
 
     <section id="reviews-container">

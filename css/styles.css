@@ -28,8 +28,22 @@ a:hover, a:focus {
 a img{
 	border: none 0px #fff;
 }
+img {
+  width: 100%;
+}
 h1, h2, h3, h4, h5, h6 {
   margin: 0 0 20px;
+}
+h1 {
+  color: #f18200;
+  background: #fff;
+  font-size: 1.5rem;
+  font-weight: 200;
+  letter-spacing: 0;
+  padding: 1.5em 0.5rem;
+  margin: 0;
+  text-transform: uppercase;
+  line-height: 1.25em;
 }
 article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
 	display: block;
@@ -168,7 +182,6 @@ main,
   display: inline-block;
   margin: 0;
   padding: 0;
-  width: 100%;
 }
 #restaurants-list li h2 {
   color: #f18200;
@@ -198,33 +211,33 @@ main,
 }
 
 /* ====================== Restaurant Details ====================== */
-#restaurant-name {
-  color: #f18200;
-  font-size: 1.667rem;
-  font-weight: 200;
-  letter-spacing: 0;
-  margin: 15px 0 30px;
-  text-transform: uppercase;
-  line-height: 1.1;
+.restaurant-details .image {
+  position: relative;
+  font-size: 0;
 }
-#restaurant-img {
-	width: 90%;
+.restaurant-details .hours {
+  padding: 0.5rem;
+  background: #fff;
 }
 #restaurant-address {
   font-size: 1rem;
   margin: 10px 0px;
 }
 #restaurant-cuisine {
-  background-color: #333;
-  color: #ddd;
+  background-color: rgba(50,50,50, 0.85);
+  color: #fff;
   font-size: 1rem;
   font-weight: 300;
   letter-spacing: 10px;
-  margin: 0 0 20px;
-  padding: 2px 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 1em;
   text-align: center;
   text-transform: uppercase;
-	width: 90%;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
 }
 #restaurant-container, #reviews-container {
   border-bottom: 1px solid #d9d9d9;
@@ -261,9 +274,16 @@ main,
   margin: 0 0 10px;
 }
 #restaurant-hours td {
+  vertical-align: top;
   color: #666;
 }
-
+#restaurant-hours {
+  border-collapse: collapse;
+}
+#restaurant-hours td:first-child {
+  font-weight: bold;
+  padding-right: .5em;
+}
 
 @media (max-width: 438px) {
   header a {
@@ -313,6 +333,16 @@ main,
   #restaurants-list .restaurant-info {
     width: 60%;
   }
+
+  .restaurant-details .image-hours {
+    display: flex;
+  }
+  .restaurant-details .image {
+    width: 50%;
+  }
+  .restaurant-details .hours {
+    flex: 1;
+  }
 }
 
 
@@ -340,8 +370,42 @@ main,
     width: 100%;
     padding-bottom: 1rem;
   }
+
 }
 
+@media (min-width: 800px) {
+  h1 {
+    background: none;
+  }
+  .restaurant-details .info {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .restaurant-details .info > div {
+    box-sizing: border-box;
+  }
+  .restaurant-details .title {
+    order: 1;
+    width: 100%;
+  }
+  .restaurant-details .image-hours {
+    display: block;
+    width: 40%;
+    order: 2;
+  }
+  .restaurant-details .image {
+    width: auto;
+  }
+  .restaurant-details .map {
+    width: 60%;
+    order: 3;
+  }
+  .restaurant-details #map {
+    width: 100%;
+    height: 100%;
+  }
+
+}
 
 @media (min-width: 910px) {
   #restaurants-list li {
