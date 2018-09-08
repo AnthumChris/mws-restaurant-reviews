@@ -150,7 +150,7 @@ createRestaurantHTML = (restaurant) => {
   li.append(imgWrapper);
 
   image.className = 'restaurant-img';
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  DBHelper.setRestaurantImage(image, restaurant);
   imgWrapper.append(image);
 
   info.className = 'restaurant-info';
