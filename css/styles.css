@@ -14,7 +14,6 @@ td,th,p{
   line-height: 1.5;
 }
 ul, li {
-	font-size: 0.833rem;
 	color: #333;
 }
 a {
@@ -239,39 +238,73 @@ main,
   bottom: 0;
   width: 100%;
 }
-#restaurant-container, #reviews-container {
-  border-bottom: 1px solid #d9d9d9;
-  border-top: 1px solid #fff;
-  padding: 140px 40px 30px;
-  width: 50%;
+
+
+.review {
+  background: #fff;
+  margin: 2rem 1rem;
+  box-shadow: 0 0 5px 0 #ccc;
+  border-radius: 20px 0 20px 0;
+  overflow: hidden;
 }
-#reviews-container {
-  padding: 30px 40px 80px;
+.no-reviews {
+  padding: 2rem;
+  margin: 2rem 1rem;
+  font-size: 1rem;
+  background: #fff;
+  box-shadow: 0 0 5px 0 #ccc;
 }
-#reviews-container h2 {
-  color: #f58500;
-  font-size: 2rem;
-  font-weight: 300;
-  letter-spacing: -1px;
-  padding-bottom: 1pt;
+.review > div {
+  padding: 1rem;
 }
+.review-heading {
+  color: #fff;
+  background: #333;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+}
+.review-date {
+  float: right;
+  font-weight: normal;
+  font-size: .6em;
+  color: #ccc;
+  line-height: 1.2rem;
+  display: inline-block;
+}
+.review-rating {
+  overflow: hidden;
+}
+.review-body p {
+  margin-bottom: 0;
+}
+.review-rating i {
+  padding: 0;
+  border: 0;
+  outline: 0;
+  margin: 0;
+  font-style: normal;
+  float: left;
+  width: 1em;
+  display: inline-block;
+  line-height: 1em;
+  vertical-align: middle;;
+}
+.review-rating i:before {
+  content: "★";
+  color: #ccc;
+}
+.review-rating i[checked]:before {
+  color: #f18200;
+}
+
+
 #reviews-list {
   margin: 0;
   padding: 0;
 }
 #reviews-list li {
-  background-color: #fff;
-  border: 2px solid #f3f3f3;
   display: block;
   list-style-type: none;
-  margin: 0 0 30px;
-  overflow: hidden;
-  padding: 0 20px 20px;
-  position: relative;
-  width: 85%;
-}
-#reviews-list li p {
-  margin: 0 0 10px;
 }
 #restaurant-hours td {
   vertical-align: top;
@@ -342,6 +375,19 @@ main,
   }
   .restaurant-details .hours {
     flex: 1;
+  }
+
+  #reviews-list {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
+  #reviews-list li {
+    display: flex;
+    width: 50%;
+  }
+  .review {
+    margin: 0 1rem 2rem;
   }
 }
 

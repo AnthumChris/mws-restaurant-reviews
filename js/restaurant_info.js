@@ -99,12 +99,10 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  */
 fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
-  const title = document.createElement('h2');
-  title.innerHTML = 'Reviews';
-  container.appendChild(title);
 
   if (!reviews) {
     const noReviews = document.createElement('p');
+    noReviews.className = 'no-reviews';
     noReviews.innerHTML = 'No reviews yet!';
     container.appendChild(noReviews);
     return;
@@ -120,23 +118,35 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
  * Create review HTML and add it to the webpage.
  */
 createReviewHTML = (review) => {
+  // using HTML templates. Not the most performant, but easier to code and debug
   const li = document.createElement('li');
-  const name = document.createElement('p');
-  name.innerHTML = review.name;
-  li.appendChild(name);
+  li.innerHTML = `
+    <div class="review">
+      <div class="review-heading">
+        NAME
+        <span class="review-date"></span>
+      </div>
+      <div class="review-body">
+        <div class="review-rating">
+        </div>
+        <p></p>
+      </div>
+    </div>
+  `;
+  li.querySelector('.review-heading').firstChild.textContent = review.name;
+  li.querySelector('.review-date').innerText = review.date;
 
-  const date = document.createElement('p');
-  date.innerHTML = review.date;
-  li.appendChild(date);
+  // add "checked" attribute to color stars
+  const rating = li.querySelector('.review-rating');
+  for (let i=1; i<=5; i++) {
+    const star = document.createElement('i');
+    if (i <= review.rating) {
+      star.setAttribute('checked', true);
+    }
+    rating.appendChild(star);
+  }
 
-  const rating = document.createElement('p');
-  rating.innerHTML = `Rating: ${review.rating}`;
-  li.appendChild(rating);
-
-  const comments = document.createElement('p');
-  comments.innerHTML = review.comments;
-  li.appendChild(comments);
-
+  li.querySelector('.review-body p').innerText = review.comments;
   return li;
 }
 
