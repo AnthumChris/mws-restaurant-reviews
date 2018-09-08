@@ -85,8 +85,8 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 
     const time = document.createElement('td');
 
-    // add line breaks where commas exist
-    time.innerHTML = operatingHours[key];
+    // add span to prevent line wrapping on times
+    time.innerHTML = '<span>'+operatingHours[key].split(', ').join('</span>, <span>')+'</span>';
     // time.innerHTML = operatingHours[key].replace(/,/,',<br />');
     row.appendChild(time);
 

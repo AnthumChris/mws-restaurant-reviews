@@ -218,6 +218,9 @@ main,
   padding: 1rem;
   background: #fff;
 }
+.restaurant-details .hours td span {
+  white-space: nowrap;
+}
 #restaurant-address {
   font-size: 1rem;
   margin: 10px 0px;
@@ -373,7 +376,7 @@ main,
     border-bottom: 1px solid #ccc;
   }
   .restaurant-details .image {
-    width: 50%;
+    width: 37%;
   }
   .restaurant-details .hours {
     padding-top: 0;
