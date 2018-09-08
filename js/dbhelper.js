@@ -149,7 +149,8 @@ class DBHelper {
    * Restaurant image URL.
    */
   static setRestaurantImage(elImg, restaurant) {
-    elImg.src = `/img/2a00w/${restaurant.photograph}`
+    elImg.src = `/img/2a00w/${restaurant.photograph}`;
+    elImg.setAttribute('alt', restaurant.photo_alt);
     elImg.setAttribute('srcset', `
       /img/200w/${restaurant.photograph} 200w,
       /img/400w/${restaurant.photograph} 400w,
