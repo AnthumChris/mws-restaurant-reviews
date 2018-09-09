@@ -138,6 +138,7 @@ createReviewHTML = (review) => {
 
   // add "checked" attribute to color stars
   const rating = li.querySelector('.review-rating');
+  rating.setAttribute('arial-label', 'Rating ' + review.rating + ' of 5');
   for (let i=1; i<=5; i++) {
     const star = document.createElement('i');
     if (i <= review.rating) {
