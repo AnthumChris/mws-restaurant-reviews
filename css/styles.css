@@ -82,12 +82,15 @@ main,
 
 #footer {
   background-color: #444;
-  color: #aaa;
+  color: #ddd;
   font-size: 0.667rem;
   letter-spacing: 1px;
   padding: 25px;
   text-align: center;
   text-transform: uppercase;
+}
+#footer a {
+  color: #ffd588;
 }
 
 /* ====================== Navigation ====================== */
@@ -138,7 +141,7 @@ main,
   padding: 1em 0;
 }
 .filter-options h2 {
-  color: white;
+  color: #000;
   font-size: 1rem;
   font-weight: normal;
   line-height: 1;
@@ -183,7 +186,7 @@ main,
   padding: 0;
 }
 #restaurants-list li h2 {
-  color: #f18200;
+  color: #884900;
   font-size: 1.167rem;
   font-weight: 200;
   letter-spacing: 0;
@@ -199,7 +202,7 @@ main,
 }
 #restaurants-list li a {
   background-color: orange;
-  color: #fff;
+  color: #000;
   display: inline-block;
   font-size: 0.833rem;
   margin-top: 1em;
