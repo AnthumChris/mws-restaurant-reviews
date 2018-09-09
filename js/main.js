@@ -75,12 +75,16 @@ window.initMap = () => {
     lat: 40.715216,
     lng: -73.969501
   };
-  self.map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 11,
-    center: loc,
-    scrollwheel: false,
-    mapTypeControl: false
-  });
+
+  const mapEl = document.getElementById('map');
+  if (mapEl) {
+    self.map = new google.maps.Map((mapEl), {
+      zoom: 11,
+      center: loc,
+      scrollwheel: false,
+      mapTypeControl: false
+    });
+  }
   updateRestaurants();
 }
 
