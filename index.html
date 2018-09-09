@@ -9,8 +9,8 @@
 </head>
 
 <body>
-  <header>
-    <a href="/">Restaurant Reviews</a>
+  <header >
+    <a tabindex="1" href="/">Restaurant Reviews</a>
   </header>
 
   <main>
@@ -21,10 +21,10 @@
       <div class="filter-options">
         <h2>Filter Results</h2>
         <form>
-          <select aria-controls="restaurants-list" aria-label="filter by neighborhood" id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
+          <select tabindex="2" aria-controls="restaurants-list" aria-label="filter by neighborhood" id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
             <option value="all">All Neighborhoods</option>
           </select>
-          <select aria-controls="restaurants-list" aria-label="filter by cuisine" id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
+          <select tabindex="3" aria-controls="restaurants-list" aria-label="filter by cuisine" id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
             <option value="all">All Cuisines</option>
           </select>
         </form>
