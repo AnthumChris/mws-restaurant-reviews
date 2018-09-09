@@ -20,14 +20,16 @@
     <section>
       <div class="filter-options">
         <h2>Filter Results</h2>
-        <select aria-label="filter by neighborhood" id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
-          <option value="all">All Neighborhoods</option>
-        </select>
-        <select aria-label="filter by cuisine" id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
-          <option value="all">All Cuisines</option>
-        </select>
+        <form>
+          <select aria-controls="restaurants-list" aria-label="filter by neighborhood" id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
+            <option value="all">All Neighborhoods</option>
+          </select>
+          <select aria-controls="restaurants-list" aria-label="filter by cuisine" id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
+            <option value="all">All Cuisines</option>
+          </select>
+        </form>
       </div>
-      <ul id="restaurants-list"></ul>
+      <ul aria-label="search results" role="region" aria-live="polite" id="restaurants-list"></ul>
     </section>
   </main>
 

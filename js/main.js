@@ -131,6 +131,7 @@ resetRestaurants = (restaurants) => {
  */
 fillRestaurantsHTML = (restaurants = self.restaurants) => {
   const ul = document.getElementById('restaurants-list');
+  ul.setAttribute('aria-label', restaurants.length + ' search results');
   restaurants.forEach(restaurant => {
     ul.append(createRestaurantHTML(restaurant));
   });
