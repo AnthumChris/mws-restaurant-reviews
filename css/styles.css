@@ -76,7 +76,7 @@ nav {
 
 main,
 #breadcrumb {
-  max-width: 1250px;
+  max-width: 100rem;
   margin: 0 auto;
 }
 
@@ -467,5 +467,17 @@ main,
 @media (min-width: 910px) {
   #restaurants-list li {
     width: calc((100% / 3) - 1.3333333rem);
+  }
+}
+
+@media (min-width: 1250px) {
+  #restaurants-list li {
+    width: calc((100% / 4) - 1.25rem);
+  }
+}
+
+@media (min-width: 1600px) {
+  #restaurants-list li {
+    width: calc((100% / 5) - 1.2rem);
   }
 }
