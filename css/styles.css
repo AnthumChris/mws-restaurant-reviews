@@ -445,6 +445,7 @@ main,
   .restaurant-details .image-hours {
     display: block;
     width: 40%;
+    max-width: 400px; /* max display width of images */
     order: 2;
     border: none;
   }
@@ -452,7 +453,7 @@ main,
     width: auto;
   }
   .restaurant-details .map {
-    width: 60%;
+    flex: 1;
     order: 3;
   }
   .restaurant-details #map {
@@ -473,6 +474,10 @@ main,
 @media (min-width: 1250px) {
   #restaurants-list li {
     width: calc((100% / 4) - 1.25rem);
+  }
+  #reviews-list li {
+    display: flex;
+    width: 33.333%;
   }
 }
 
