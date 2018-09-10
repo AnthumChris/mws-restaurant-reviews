@@ -111,6 +111,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
     return;
   }
   const ul = document.getElementById('reviews-list');
+  ul.setAttribute('arial-label', reviews.length+' user reviews');
   reviews.forEach(review => {
     ul.appendChild(createReviewHTML(review));
   });
