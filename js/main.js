@@ -84,6 +84,8 @@ window.initMap = () => {
       scrollwheel: false,
       mapTypeControl: false
     });
+
+    self.map.addListener('tilesloaded', addAltToGoogleMapsImages);
   }
   updateRestaurants();
 }

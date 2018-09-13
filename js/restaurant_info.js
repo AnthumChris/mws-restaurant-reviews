@@ -17,6 +17,8 @@ window.initMap = () => {
           scrollwheel: false,
           mapTypeControl: false
         });
+
+        self.map.addListener('tilesloaded', addAltToGoogleMapsImages);
       }
       fillBreadcrumb();
       DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
