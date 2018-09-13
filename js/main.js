@@ -133,15 +133,8 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
   const ul = document.getElementById('restaurants-list');
   ul.setAttribute('aria-label', restaurants.length + ' search results');
 
-  // get starting tab index defined
-  let startTabIndex = 0;
-  document.querySelectorAll('[tabindex').forEach(el => {
-    if (el.tabIndex > startTabIndex)
-      startTabIndex = el.tabIndex;
-  })
-
   restaurants.forEach(restaurant => {
-    ul.append(createRestaurantHTML(restaurant, ++startTabIndex));
+    ul.append(createRestaurantHTML(restaurant));
   });
   addMarkersToMap();
 }
@@ -149,7 +142,7 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
 /**
  * Create restaurant HTML.
  */
-createRestaurantHTML = (restaurant, tabIndex) => {
+createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li'),
         imgWrapper = document.createElement('div'),
         info = document.createElement('div'),
@@ -180,7 +173,7 @@ createRestaurantHTML = (restaurant, tabIndex) => {
 
   more.innerHTML = 'View Details';
   more.href = DBHelper.urlForRestaurant(restaurant);
-  more.tabIndex = tabIndex;
+  more.tabIndex = 0;
   more.setAttribute('aria-label', 'view restaurant details for '+restaurant.name);
   info.append(more)
 

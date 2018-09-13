@@ -1,4 +1,4 @@
-const cacheVer = 'v1';
+const cacheVer = 'v2';
 
 // clear old caches
 self.addEventListener('activate', event => {
