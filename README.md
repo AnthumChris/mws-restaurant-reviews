@@ -1,3 +1,21 @@
+# Release Notes
+
+#### Submission v1.2
+Added fixes based on feedback.
+1. Max content width (excluding header/footer) is 100rem
+1. Added aria attributes for header, reviews list, and Google Maps
+1. Added home page breakpoints to show 4 and 5 columns of results
+1. Added details breakpoints to show 3 columns of reviews and restrict image to max display width.
+
+#### Submission v1.1
+1. I run browser sync locally on :3000 and disabled the SW for those URLs because of SW errors.
+1. I was not sure if refactoring existing code to meet style guides was necessary. Most of my new code should conform to style guides. If refactoring is required, I will do this, but it wasn't explicitly specified as a requirement.
+1. ServiceWorker clears invalid caches based on cacheVer value.
+1. Normalize stylesheet removed from both pages because the URL seems old/deprecated.
+
+
+
+---
 # Mobile Web Specialist Certification Course
 ---
 #### _Three Stage Course Material Project - Restaurant Reviews_
