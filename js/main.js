@@ -10,6 +10,7 @@ var markers = []
 document.addEventListener('DOMContentLoaded', (event) => {
   fetchNeighborhoods();
   fetchCuisines();
+  updateRestaurants();
 });
 
 /**
@@ -87,7 +88,6 @@ window.initMap = () => {
 
     self.map.addListener('tilesloaded', addAltToGoogleMapsImages);
   }
-  updateRestaurants();
 }
 
 /**
