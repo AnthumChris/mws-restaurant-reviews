@@ -149,6 +149,7 @@ createRestaurantHTML = (restaurant) => {
         imgWrapper = document.createElement('div'),
         info = document.createElement('div'),
         image = document.createElement('img'),
+        aspectRatio = document.createElement('div'),
         name = document.createElement('h2'),
         neighborhood = document.createElement('p')
         address = document.createElement('p'),
@@ -157,9 +158,12 @@ createRestaurantHTML = (restaurant) => {
   imgWrapper.className = 'restaurant-photo';
   li.append(imgWrapper);
 
+  aspectRatio.className = 'x x4-3'; // preserve 4x3 aspect ratio for image
+  imgWrapper.append(aspectRatio);
+
   image.className = 'restaurant-img';
   DBHelper.setRestaurantImage(image, restaurant);
-  imgWrapper.append(image);
+  aspectRatio.append(image);
 
   info.className = 'restaurant-info';
   li.append(info);

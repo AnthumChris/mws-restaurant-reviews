@@ -93,6 +93,31 @@ main,
   color: #ffd588;
 }
 
+
+/* ================= Fixed Aspect Ratio Divs (i.e. For Images) ====================
+   - prevents page jumping when slow images load
+   - set padding-bottom to height/width
+*/
+.x {
+  position: relative;
+}
+.x:before {
+  display: block;
+  content: "";
+}
+.x > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.x4-3:before {
+  padding-top: calc(3/4*100%);
+}
+
+
 /* ====================== Navigation ====================== */
 #breadcrumb {
     padding: 0 .5rem;
