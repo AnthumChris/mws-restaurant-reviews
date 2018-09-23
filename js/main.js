@@ -79,14 +79,15 @@ window.initMap = () => {
 
   const mapEl = document.getElementById('map');
   if (mapEl) {
-    self.map = new google.maps.Map((mapEl), {
+    const map = new google.maps.Map((mapEl), {
       zoom: 11,
       center: loc,
       scrollwheel: false,
       mapTypeControl: false
     });
 
-    self.map.addListener('tilesloaded', addAltToGoogleMapsImages);
+    map.addListener('tilesloaded', addAltToGoogleMapsImages);
+    App._resolveGetMap(map);
   }
 }
 
@@ -190,12 +191,15 @@ createRestaurantHTML = (restaurant) => {
  * Add markers for current restaurants to the map.
  */
 addMarkersToMap = (restaurants = self.restaurants) => {
-  restaurants.forEach(restaurant => {
-    // Add marker to the map
-    const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.map);
-    google.maps.event.addListener(marker, 'click', () => {
-      window.location.href = marker.url
+  // TODO this causes a race condition if previous call didn't execute
+  App.getMap.then(map => {
+    restaurants.forEach(restaurant => {
+      // Add marker to the map
+      const marker = DBHelper.mapMarkerForRestaurant(restaurant, map);
+      google.maps.event.addListener(marker, 'click', () => {
+        window.location.href = marker.url
+      });
+      self.markers.push(marker);
     });
-    self.markers.push(marker);
-  });
+  })
 }

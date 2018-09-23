@@ -21,8 +21,6 @@ App.getMap = new Promise((resolve, reject) => {App
   delete App._rejectGetMap;
 })
 
-App.getMap.then(map => console.log('Map initialized', map)).catch()
-
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', event => {
     navigator.serviceWorker.register('/sw.js')
