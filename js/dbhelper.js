@@ -15,8 +15,8 @@ class DBHelper {
 
   // Fetch a restaurant by its ID.
   static fetchRestaurantById(id) {
-    return DBHelper.fetchRestaurants()
-    .then(restaurants => restaurants.find(r => r.id == id));
+    return fetch(DBHelper.API_URL + '/restaurants/'+id)
+    .then(resp => resp.json())
   }
 
   // Fetch restaurants by a cuisine type
