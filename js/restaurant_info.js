@@ -7,10 +7,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const restaurantLoaded = loadRestaurant().then(() => {
     fillRestaurantHTML();
     fillBreadcrumb();
-  })
+  }).catch(error => console.error(error))
 
   // draw map when both map library and restaurant are loaded
-  Promise.all([App.googleMap, restaurantLoaded])
+  Promise.all([
+    App.googleMap,
+    restaurantLoaded
+  ])
   .then(() => {
     const elMap = document.getElementById('map');
     if (elMap) {
@@ -38,9 +41,10 @@ loadRestaurant = () => {
       return reject('No restaurant id in URL');
     }
 
-    DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+    return DBHelper.fetchRestaurantById(id)
+    .then(restaurant => {
       if (!restaurant) {
-        return reject(error);
+        return reject('No restaurant found for id '+id);
       }
 
       self.restaurant = restaurant;
