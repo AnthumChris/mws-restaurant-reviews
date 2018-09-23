@@ -1,54 +1,61 @@
 let restaurant;
-var map;
 
 /**
  * Initialize Google map, called from HTML.
  */
-window.initMap = () => {
-  fetchRestaurantFromURL((error, restaurant) => {
-    if (error) { // Got an error!
-      console.error(error);
-    } else {
-      const elMap = document.getElementById('map');
-      if (elMap) {
-        self.map = new google.maps.Map(elMap, {
-          zoom: 16,
-          center: restaurant.latlng,
-          scrollwheel: false,
-          mapTypeControl: false
-        });
-
-        self.map.addListener('tilesloaded', addAltToGoogleMapsImages);
-      }
-      fillBreadcrumb();
-      DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
-    }
-  });
-}
+// TODO decouple this from global map handler used on home page
+const mapReady = new Promise((resolve, reject) => {
+  window.initMap = resolve;
+  window.initMapError = reject;
+});
 
 /**
- * Get current restaurant from page URL.
+ * Fetch restaurant once page loads.
  */
-fetchRestaurantFromURL = (callback) => {
-  if (self.restaurant) { // restaurant already fetched!
-    callback(null, self.restaurant)
-    return;
-  }
-  const id = getParameterByName('id');
-  if (!id) { // no id found in URL
-    error = 'No restaurant id in URL'
-    callback(error, null);
-  } else {
+document.addEventListener('DOMContentLoaded', (event) => {
+  const restaurantLoaded = loadRestaurant().then(() => {
+    fillRestaurantHTML();
+    fillBreadcrumb();
+  })
+
+  // draw map when both map library and restaurant are loaded
+  Promise.all([mapReady, restaurantLoaded])
+  .then(() => {
+    const elMap = document.getElementById('map');
+    if (elMap) {
+      const map = new google.maps.Map(elMap, {
+        zoom: 16,
+        center: self.restaurant.latlng,
+        scrollwheel: false,
+        mapTypeControl: false
+      });
+
+      map.addListener('tilesloaded', addAltToGoogleMapsImages);
+      DBHelper.mapMarkerForRestaurant(self.restaurant, map);
+    }
+  })
+});
+
+loadRestaurant = () => {
+  return new Promise((resolve, reject) => {
+    if (self.restaurant)
+      return resolve();
+
+    // Get current restaurant from page URL.
+    const id = getParameterByName('id');
+    if (!id) { // no id found in URL
+      return reject('No restaurant id in URL');
+    }
+
     DBHelper.fetchRestaurantById(id, (error, restaurant) => {
-      self.restaurant = restaurant;
       if (!restaurant) {
-        console.error(error);
-        return;
+        return reject(error);
       }
-      fillRestaurantHTML();
-      callback(null, restaurant)
+
+      self.restaurant = restaurant;
+      return resolve();
     });
-  }
+  });
 }
 
 /**
