@@ -1,15 +1,6 @@
 let restaurant;
 
 /**
- * Initialize Google map, called from HTML.
- */
-// TODO decouple this from global map handler used on home page
-const mapReady = new Promise((resolve, reject) => {
-  window.initMap = resolve;
-  window.initMapError = reject;
-});
-
-/**
  * Fetch restaurant once page loads.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -19,7 +10,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   })
 
   // draw map when both map library and restaurant are loaded
-  Promise.all([mapReady, restaurantLoaded])
+  Promise.all([App.googleMap, restaurantLoaded])
   .then(() => {
     const elMap = document.getElementById('map');
     if (elMap) {

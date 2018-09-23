@@ -1,17 +1,44 @@
 let restaurants,
   neighborhoods,
-  cuisines
-var map
+  cuisines;
 var markers = []
 
-/**
- * Fetch neighborhoods and cuisines as soon as the page is loaded.
- */
 document.addEventListener('DOMContentLoaded', (event) => {
   fetchNeighborhoods();
   fetchCuisines();
   updateRestaurants();
+  renderMap();
 });
+
+
+renderMap = () => {
+  // already called
+  if (self._renderMapPromise)
+    return self._renderMapPromise;
+
+  // not yet called
+  return self._renderMapPromise = new Promise((resolve, reject) => {
+    App.googleMap.then(_ => {
+      let loc = {
+        lat: 40.715216,
+        lng: -73.969501
+      };
+
+      const mapEl = document.getElementById('map');
+      if (!mapEl) return reject('Map element not found in DOM');
+
+      const map = new google.maps.Map((mapEl), {
+        zoom: 11,
+        center: loc,
+        scrollwheel: false,
+        mapTypeControl: false
+      });
+
+      map.addListener('tilesloaded', addAltToGoogleMapsImages);
+      resolve(map);
+    })
+  })
+}
 
 /**
  * Fetch all neighborhoods and set their HTML.
@@ -66,29 +93,6 @@ fillCuisinesHTML = (cuisines = self.cuisines) => {
     option.value = cuisine;
     select.append(option);
   });
-}
-
-/**
- * Initialize Google map, called from HTML.
- */
-window.initMap = () => {
-  let loc = {
-    lat: 40.715216,
-    lng: -73.969501
-  };
-
-  const mapEl = document.getElementById('map');
-  if (mapEl) {
-    const map = new google.maps.Map((mapEl), {
-      zoom: 11,
-      center: loc,
-      scrollwheel: false,
-      mapTypeControl: false
-    });
-
-    map.addListener('tilesloaded', addAltToGoogleMapsImages);
-    App._resolveGetMap(map);
-  }
 }
 
 /**
@@ -192,7 +196,7 @@ createRestaurantHTML = (restaurant) => {
  */
 addMarkersToMap = (restaurants = self.restaurants) => {
   // TODO this causes a race condition if previous call didn't execute
-  App.getMap.then(map => {
+  renderMap().then(map => {
     restaurants.forEach(restaurant => {
       // Add marker to the map
       const marker = DBHelper.mapMarkerForRestaurant(restaurant, map);

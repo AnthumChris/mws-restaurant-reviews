@@ -5,9 +5,9 @@ window.App = window.App || {}
  * UX that ensures that app can run if maps aren't yet loaded.  Also shows
  * error if maps can't instantiate.
  */
-App.getMap = new Promise((resolve, reject) => {App
-  App._resolveGetMap = resolve;
-  App._rejectGetMap = reject;
+App.googleMap = new Promise((resolve, reject) => {
+  self._googleMapInit = resolve;
+  self._googleMapError = reject;
 })
 .catch(error => {
   const elMap = document.getElementById('map');
@@ -17,8 +17,8 @@ App.getMap = new Promise((resolve, reject) => {App
   return Promise.reject('Map library failed to initialize')
 })
 .finally(_ => {
-  delete App._resolveGetMap;
-  delete App._rejectGetMap;
+  delete App._googleMapInit;
+  delete App._googleMapError;
 })
 
 if ('serviceWorker' in navigator) {
