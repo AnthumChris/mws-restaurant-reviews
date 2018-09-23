@@ -50,23 +50,13 @@ class DBHelper {
   // Fetch all neighborhoods
   static fetchNeighborhoods() {
     return DBHelper.fetchRestaurants()
-    .then(restaurants => {
-      // Get all neighborhoods from all restaurants
-      const neighborhoods = restaurants.map((v, i) => restaurants[i].neighborhood)
-      // Remove duplicates from neighborhoods
-      return neighborhoods.filter((v, i) => neighborhoods.indexOf(v) == i)
-    })
+    .then(list => new Set(list.map(o => o.neighborhood)));
   }
 
   // Fetch all cuisines
   static fetchCuisines() {
     return DBHelper.fetchRestaurants()
-    .then(restaurants => {
-      // Get all cuisines from all restaurants
-      const cuisines = restaurants.map((v, i) => restaurants[i].cuisine_type)
-      // Remove duplicates from cuisines
-      return cuisines.filter((v, i) => cuisines.indexOf(v) == i)
-    })
+    .then(list => new Set(list.map(o => o.cuisine_type)));
   }
 
   // Restaurant page URL.
