@@ -3,15 +3,14 @@
  */
 class DBHelper {
 
-  static get DATABASE_URL() {
-    return '/data/restaurants.json';
+  static get API_URL() {
+    return 'http://localhost:1337';
   }
 
   // Fetch all restaurants.
   static fetchRestaurants() {
-    return fetch(DBHelper.DATABASE_URL)
+    return fetch(DBHelper.API_URL + '/restaurants/')
     .then(resp => resp.json())
-    .then(json => json.restaurants)
   }
 
   // Fetch a restaurant by its ID.
@@ -64,13 +63,24 @@ class DBHelper {
 
   // Restaurant image URL.
   static setRestaurantImage(elImg, restaurant) {
-    elImg.src = `/img/2a00w/${restaurant.photograph}`;
-    elImg.setAttribute('alt', restaurant.photo_alt);
+    /*
+      API returns some restaurants without photo ids.  fallback to
+      record id, which works for Sep 23, 2018 API version
+    */
+    const photoId = restaurant.photograph || restaurant.id;
+
+    // API doesn't provide alt text, so set blank for a11y
+    elImg.setAttribute('alt', '');
+
+    if (!photoId) return;
+
+    const photoFile = photoId + '.jpg';
+    elImg.src = `/img/2a00w/${photoFile}`;
     elImg.setAttribute('srcset', `
-      /img/200w/${restaurant.photograph} 200w,
-      /img/400w/${restaurant.photograph} 400w,
-      /img/600w/${restaurant.photograph} 600w,
-      /img/800w/${restaurant.photograph} 800w,
+      /img/200w/${photoFile} 200w,
+      /img/400w/${photoFile} 400w,
+      /img/600w/${photoFile} 600w,
+      /img/800w/${photoFile} 800w,
     `)
   }
 
