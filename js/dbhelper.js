@@ -36,14 +36,12 @@ class DBHelper {
   static fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood) {
     return DBHelper.fetchRestaurants()
     .then(restaurants => {
-      let results = restaurants
-      if (cuisine != 'all') { // filter by cuisine
-        results = results.filter(r => r.cuisine_type == cuisine);
-      }
-      if (neighborhood != 'all') { // filter by neighborhood
-        results = results.filter(r => r.neighborhood == neighborhood);
-      }
-      return results;
+      return restaurants.filter(r => {
+        const isCuisine = cuisine === 'all'? true : r.cuisine_type === cuisine,
+              isNeighborhood = neighborhood === 'all'? true : r.neighborhood === neighborhood;
+
+        return (isCuisine && isNeighborhood);
+      })
     })
   }
 
