@@ -158,6 +158,18 @@ main,
   width: 100%;
   background-color: #ccc;
 }
+#map.init-error {
+  display: flex;
+  align-items:  center;
+  text-align: center;
+  justify-content: center;
+}
+#map.init-error:after {
+  display: block;
+  font-size: .8rem;
+  color: #a00;
+  content: '⚠️ Map failed to initialize';
+}
 /* ====================== Restaurant Filtering ====================== */
 .filter-options {
   width: 100%;
