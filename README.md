@@ -1,13 +1,27 @@
 # Release Notes
 
-#### Submission v1.2
+### Submission v2.1
+1. External JSON Api is used instead of static JSON file
+1. IndexedDB is used after first `/restaurants` fetch is stored
+1. Lighthouse Accessibility score is 100
+1. Entire application is pre-cached on first visit
+1. PWA install feature is added
+1. Promise is used to elegantly handle all Google Maps library load
+1. All images have fixed aspect ratios and page doesn't jump on slow image loads
+1. Maps load separately (asynchronously) and don't block the main thread on all pages
+1. Added new app icons
+1. Google Maps shows error if it fails to load (useful for working locally without Internet)
+1. Entire app re-written to use Promises instead of success/error callbacks
+1. `/restaurants.html?id={id}` now uses hash params instead: `/restaurants.html#id={id}`.  This allows full pre-caching behavior and avoids unique `/restaurant.html*` URLs.
+
+### Submission v1.2
 Added fixes based on feedback.
 1. Max content width (excluding header/footer) is 100rem
 1. Added aria attributes for header, reviews list, and Google Maps
 1. Added home page breakpoints to show 4 and 5 columns of results
 1. Added details breakpoints to show 3 columns of reviews and restrict image to max display width.
 
-#### Submission v1.1
+### Submission v1.1
 1. I run browser sync locally on :3000 and disabled the SW for those URLs because of SW errors.
 1. I was not sure if refactoring existing code to meet style guides was necessary. Most of my new code should conform to style guides. If refactoring is required, I will do this, but it wasn't explicitly specified as a requirement.
 1. ServiceWorker clears invalid caches based on cacheVer value.
