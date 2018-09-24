@@ -36,8 +36,8 @@ loadRestaurant = () => {
       return resolve();
 
     // Get current restaurant from page URL.
-    const id = getParameterByName('id');
-    if (!id) { // no id found in URL
+    const id = parseInt(getParameterByName('id'));
+    if (isNaN(id)) { // no id found in URL
       return reject('No restaurant id in URL');
     }
 

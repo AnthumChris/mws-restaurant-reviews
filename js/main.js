@@ -49,7 +49,7 @@ fetchNeighborhoods = () => {
     self.neighborhoods = neighborhoods;
     fillNeighborhoodsHTML();
   })
-  .catch(error => console.log(error))
+  .catch(error => console.error(error))
 }
 
 /**
@@ -74,7 +74,7 @@ fetchCuisines = () => {
     self.cuisines = cuisines;
     fillCuisinesHTML();
   })
-  .catch(error => console.log(error))
+  .catch(error => console.error(error))
 }
 
 /**
