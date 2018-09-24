@@ -1,5 +1,32 @@
 const cacheVer = 'v2'; // always use a string value, not int
 
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(cacheVer).then(cache => {
+      return cache.addAll(
+        [
+          '/index.html',
+          '/restaurant.html',
+          '/manifest.json',
+
+          '/css/styles.css',
+
+          '/favicon.ico',
+          '/img/icon-192.png',
+          '/img/icon-512.png',
+
+          '/js/lib/idb.js',
+          '/js/dbhelper.js',
+          '/js/global.js',
+          '/js/main.js',
+          '/js/restaurant_info.js'
+        ]
+      )
+    }).then(_ => console.log('install successful'))
+
+  )
+})
+
 // clear old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
