@@ -1,9 +1,29 @@
-const cacheVer = 'v2';
+const cacheVer = 'v2'; // always use a string value, not int
 
 // clear old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(key => key !== cacheVer).map(key => caches.delete(key))))
+    caches.keys().then(keys => {
+
+      // detect if a new cacheVer was upgraded
+      let cacheVerChanged = false;
+
+      return Promise.all(
+        keys.filter(
+          key => key !== cacheVer).map(key => caches.delete(key)
+          .then(_ => cacheVerChanged=true)
+        )
+      )
+      .then(_ => {
+        if (cacheVerChanged) {
+          // delete old IndexedDB so new data is fetched
+          // awaiting the IDBOpenDBRequest.onsuccess call is flakey and stalls
+          // ServiceWorker, so don't wait for it and return immediately
+          console.log('ServiceWorker now at '+cacheVer+'. Deleting indexedDB...');
+          indexedDB.deleteDatabase('restaurantReviews');
+        }
+      })
+    })
   );
 })
 
