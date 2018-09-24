@@ -170,17 +170,18 @@ fillBreadcrumb = (restaurant=self.restaurant) => {
 }
 
 /**
- * Get a parameter by name from page URL.
+ * Get a hash parameter by name from page URL.
  */
-getParameterByName = (name, url) => {
-  if (!url)
-    url = window.location.href;
-  name = name.replace(/[\[\]]/g, '\\$&');
-  const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`),
-    results = regex.exec(url);
-  if (!results)
-    return null;
-  if (!results[2])
-    return '';
-  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+getParameterByName = (paramName) => {
+  const params = {};
+
+  // build params from hash value
+  window.location.hash.replace(/^#/,'').split(',').forEach(o => {
+    const paramArry = o.split('=');
+    if (paramArry.length === 2) {
+      params[paramArry[0].trim()] = decodeURIComponent(paramArry[1].trim().replace(/\+/g, ' '));
+    }
+  })
+
+  return params[paramName];
 }
