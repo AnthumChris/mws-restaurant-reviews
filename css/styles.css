@@ -93,6 +93,19 @@ main,
   color: #ffd588;
 }
 
+.error {
+  padding: 1rem;
+  text-align: center;
+}
+.error:before {
+  content: '⚠️';
+  font-size: 2rem;
+}
+.error, .error * {
+  color: #f00;
+  font-weight: bold;
+  font-size: 1rem;
+}
 
 /* ================= Fixed Aspect Ratio Divs (i.e. For Images) ====================
    - prevents page jumping when slow images load

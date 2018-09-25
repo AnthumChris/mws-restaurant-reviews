@@ -1,12 +1,22 @@
 let restaurants,
   neighborhoods,
-  cuisines;
+  cuisines,
+  elPageError;
 var markers = []
 
 document.addEventListener('DOMContentLoaded', (event) => {
-  fetchNeighborhoods();
-  fetchCuisines();
-  updateRestaurants();
+  self.elPageError = document.getElementById('error');
+
+  Promise.all([
+    fetchNeighborhoods(),
+    fetchCuisines(),
+    updateRestaurants(),
+  ]).catch(error => {
+    console.error(error);
+    self.elPageError.innerHTML = '<p>Error loading restaurant data<p>';
+    self.elPageError.hidden = false;
+  });
+
   renderMap();
 });
 
@@ -44,13 +54,47 @@ renderMap = () => {
  * Fetch all neighborhoods and set their HTML.
  */
 fetchNeighborhoods = () => {
-  DBHelper.fetchNeighborhoods()
+  return DBHelper.fetchNeighborhoods()
   .then(neighborhoods => {
     self.neighborhoods = neighborhoods;
     fillNeighborhoodsHTML();
   })
-  .catch(error => console.error(error))
 }
+
+/**
+ * Fetch all cuisines and set their HTML.
+ */
+fetchCuisines = () => {
+  return DBHelper.fetchCuisines()
+  .then(cuisines => {
+    self.cuisines = cuisines;
+    fillCuisinesHTML();
+  })
+}
+
+/**
+ * Update page and map for current restaurants.
+ */
+updateRestaurants = () => {
+  self.elPageError.hidden = true;
+
+  const cSelect = document.getElementById('cuisines-select');
+  const nSelect = document.getElementById('neighborhoods-select');
+
+  const cIndex = cSelect.selectedIndex;
+  const nIndex = nSelect.selectedIndex;
+
+  const cuisine = cSelect[cIndex].value;
+  const neighborhood = nSelect[nIndex].value;
+
+  return DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood)
+  .then(restaurants => {
+    resetRestaurants(restaurants);
+    fillRestaurantsHTML();
+  })
+}
+
+
 
 /**
  * Set neighborhoods HTML.
@@ -66,18 +110,6 @@ fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
 }
 
 /**
- * Fetch all cuisines and set their HTML.
- */
-fetchCuisines = () => {
-  DBHelper.fetchCuisines()
-  .then(cuisines => {
-    self.cuisines = cuisines;
-    fillCuisinesHTML();
-  })
-  .catch(error => console.error(error))
-}
-
-/**
  * Set cuisines HTML.
  */
 fillCuisinesHTML = (cuisines = self.cuisines) => {
@@ -89,27 +121,6 @@ fillCuisinesHTML = (cuisines = self.cuisines) => {
     option.value = cuisine;
     select.append(option);
   });
-}
-
-/**
- * Update page and map for current restaurants.
- */
-updateRestaurants = () => {
-  const cSelect = document.getElementById('cuisines-select');
-  const nSelect = document.getElementById('neighborhoods-select');
-
-  const cIndex = cSelect.selectedIndex;
-  const nIndex = nSelect.selectedIndex;
-
-  const cuisine = cSelect[cIndex].value;
-  const neighborhood = nSelect[nIndex].value;
-
-  DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood)
-  .then(restaurants => {
-    resetRestaurants(restaurants);
-    fillRestaurantsHTML();
-  })
-  .catch(error => console.error(error));
 }
 
 /**
