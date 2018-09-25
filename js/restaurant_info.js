@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const restaurantLoaded = loadRestaurant().then(() => {
     fillRestaurantHTML();
     fillBreadcrumb();
-  }).catch(error => console.error(error))
+  })
 
   // draw map when both map library and restaurant are loaded
   Promise.all([
@@ -27,6 +27,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
       map.addListener('tilesloaded', addAltToGoogleMapsImages);
       DBHelper.mapMarkerForRestaurant(self.restaurant, map);
     }
+  }).catch(error => {
+    console.error(error);
+    document.querySelector('main').hidden = true;
+
+    const elError = document.querySelector('#error');
+    elError.hidden = false;
+    elError.innerHTML += '<p>'+error+'</p>';
   })
 });
 
@@ -49,6 +56,9 @@ loadRestaurant = () => {
 
       self.restaurant = restaurant;
       return resolve();
+    }).catch(error => {
+      console.error(error);
+      return reject(error);
     });
   });
 }
