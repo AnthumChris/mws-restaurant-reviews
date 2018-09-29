@@ -1,3 +1,5 @@
+'use strict'
+
 let restaurant;
 
 /**
@@ -37,7 +39,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   })
 });
 
-loadRestaurant = () => {
+const loadRestaurant = () => {
   return new Promise((resolve, reject) => {
     if (self.restaurant)
       return resolve();
@@ -66,7 +68,7 @@ loadRestaurant = () => {
 /**
  * Create restaurant HTML and add it to the webpage
  */
-fillRestaurantHTML = (restaurant = self.restaurant) => {
+const fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.querySelector('.restaurant-name');
   name.innerHTML = restaurant.name;
 
@@ -91,7 +93,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
 /**
  * Create restaurant operating hours HTML table and add it to the webpage.
  */
-fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
+const fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => {
   const hours = document.getElementById('restaurant-hours');
   for (let key in operatingHours) {
     const row = document.createElement('tr');
@@ -114,7 +116,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
 
   if (!reviews) {
@@ -135,7 +137,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
 /**
  * Create review HTML and add it to the webpage.
  */
-createReviewHTML = (review) => {
+const createReviewHTML = (review) => {
   // using HTML templates. Not the most performant, but easier to code and debug
   const li = document.createElement('li');
   li.innerHTML = `
@@ -172,7 +174,7 @@ createReviewHTML = (review) => {
 /**
  * Add restaurant name to the breadcrumb navigation menu
  */
-fillBreadcrumb = (restaurant=self.restaurant) => {
+const fillBreadcrumb = (restaurant=self.restaurant) => {
   const breadcrumb = document.getElementById('breadcrumb');
   const li = document.createElement('li');
   li.innerHTML = restaurant.name;
@@ -182,7 +184,7 @@ fillBreadcrumb = (restaurant=self.restaurant) => {
 /**
  * Get a hash parameter by name from page URL.
  */
-getParameterByName = (paramName) => {
+const getParameterByName = (paramName) => {
   const params = {};
 
   // build params from hash value
