@@ -136,11 +136,18 @@ const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
     return;
   }
   const ul = document.getElementById('reviews-list');
+  ul.innerHTML = '';
   ul.setAttribute('arial-label', reviews.length+' user reviews');
   reviews.forEach(review => {
     ul.appendChild(createReviewHTML(review));
   });
   container.appendChild(ul);
+}
+
+// adds review to in-memory list, re-displays the list, then queues it to be added
+const addNewReview = review => {
+  self.restaurant.reviews.unshift(review);
+  fillReviewsHTML();
 }
 
 /**
@@ -265,6 +272,9 @@ App.AddReviewModal = (function() {
   const successView = modal.querySelector('.success');
   const formView = modal.querySelector('.form');
 
+  // warn users before closing. disable this after success
+  let preventCloseIfChanged = true;
+
   // focus trap - keep focus within modal
   let focusableFirst, focusableLast;
 
@@ -280,6 +290,7 @@ App.AddReviewModal = (function() {
   function reset() {
     form.reset();
     error.classList.remove('active');
+    preventCloseIfChanged = true;
     ratingControl.value(0);
 
     successView.classList.remove('active');
@@ -294,6 +305,9 @@ App.AddReviewModal = (function() {
 
   // shows the success div when the review is submitted
   function showSuccess() {
+    preventCloseIfChanged = false;
+
+    // set new focus trap
     const focusables = modalContent.querySelectorAll('.success [tabindex="0"]');
     focusableFirst = focusables[0];
     focusableLast = focusables[focusables.length-1];
@@ -323,16 +337,18 @@ App.AddReviewModal = (function() {
     if (ratingControl.value() === 0 || form.name.value.trim() === '') {
       error.innerHTML = 'Your name and a rating are required.';
       error.classList.add('active');
-      return false;
     } else {
       const review = {
         restaurantId: self.restaurant.id,
-        rating: ratingControl.value(),
+        date: DBHelper.getDateString(new Date()),
+        rating: DBHelper.sanitize(ratingControl.value()),
         name: form.name.value.trim(),
-        comments: form.comments.value.trim()
+        comments: DBHelper.sanitize(form.comments.value.trim())
       };
-      console.log('submitting review', review);
+      addNewReview(review);
+      showSuccess();
     }
+
     return false;
   }
 
@@ -385,7 +401,7 @@ App.AddReviewModal = (function() {
   // closes and hides modal
   function hide() {
     // warn user before closing
-    if (formChanged() && !confirm("Discard your review?"))
+    if (preventCloseIfChanged && formChanged() && !confirm("Discard your review?"))
       return;
 
     requestAnimationFrame(_ => {
