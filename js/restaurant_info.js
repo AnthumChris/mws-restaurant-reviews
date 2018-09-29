@@ -9,6 +9,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const restaurantLoaded = loadRestaurant().then(() => {
     fillRestaurantHTML();
     fillBreadcrumb();
+
+    // TODO remove test code
+    // const button = document.querySelector('button.write-review');
+    // button.focus();
+    // button.click();
+    // console.log(self.restaurant.reviews)
+  }).catch(error => {
+    console.error(error);
+    document.querySelector('main').hidden = true;
+
+    const elError = document.querySelector('#error');
+    elError.hidden = false;
+    elError.innerHTML += '<p>'+error+'</p>';
   })
 
   // draw map when both map library and restaurant are loaded
@@ -29,14 +42,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
       map.addListener('tilesloaded', addAltToGoogleMapsImages);
       DBHelper.mapMarkerForRestaurant(self.restaurant, map);
     }
-  }).catch(error => {
-    console.error(error);
-    document.querySelector('main').hidden = true;
-
-    const elError = document.querySelector('#error');
-    elError.hidden = false;
-    elError.innerHTML += '<p>'+error+'</p>';
   })
+
+  // bind button to modal
+  document.querySelector('button.write-review').addEventListener('click', App.AddReviewModal.show);
 });
 
 const loadRestaurant = () => {
@@ -147,7 +156,7 @@ const createReviewHTML = (review) => {
         <span class="review-date"></span>
       </div>
       <div class="review-body">
-        <div class="review-rating">
+        <div class="review-rating clearfix">
         </div>
         <p></p>
       </div>
@@ -197,3 +206,208 @@ const getParameterByName = (paramName) => {
 
   return params[paramName];
 }
+
+// UI control to click stars for ratings
+function RatingsControl(element) {
+  this.wrapper = element;
+  this._value = 0;
+  this.ratingsButtons = element.querySelectorAll('i');
+
+  this.ratingsButtons.forEach((el, i) => {
+    el.setAttribute('aria-checked', false);
+    el.setAttribute('aria-pressed', false);
+
+    el.addEventListener('click', event => {
+      this.value(i+1);
+    });
+
+    const ariaToggleKeys = [32, 13]; // spacebar, enter
+    el.addEventListener('keydown', event => {
+      if (ariaToggleKeys.indexOf(event.keyCode) !== -1) {
+        event.preventDefault();
+        this.value(i+1);
+      }
+    })
+  })
+}
+// gets or sets the value
+RatingsControl.prototype.value = function(optionalValue) {
+  if ('undefined' === typeof optionalValue)
+    return this._value;
+
+  // keep value within boundaries of 0-buttons.length
+  const val = Math.max(0, Math.min(optionalValue, this.ratingsButtons.length));
+  this._value = val;
+
+  // mark buttons selected/deselected
+  this.ratingsButtons.forEach((o, i) => {
+    const checked = i+1 === this._value;
+    o.setAttribute('aria-checked', checked);
+    o.setAttribute('aria-pressed', checked);
+
+    o.classList.toggle('active', i+1 <= this._value);
+  });
+
+  this.wrapper.dataset.value=this._value;
+}
+
+App.AddReviewModal = (function() {
+  const modal = document.querySelector('.modal');
+  const modalContent = modal.firstElementChild;
+  const error = modal.querySelector('.error');
+  const closeButton = modal.querySelector('.modal-close');
+  const cancelButton = modal.querySelector('.cancel');
+  const successButton = modal.querySelector('.success-done');
+
+  const form = modal.querySelector('form');
+  const comments = form.querySelector('[name=comments]');
+
+  const successView = modal.querySelector('.success');
+  const formView = modal.querySelector('.form');
+
+  // focus trap - keep focus within modal
+  let focusableFirst, focusableLast;
+
+  const ratingControl = new RatingsControl(form.querySelector('.review-rating'));
+
+  // prep inner elements to be focused
+  modal.setAttribute('tabindex', -1);
+
+  // return focus to element before modal opened
+  let previousActiveElement;
+
+  // resets modal to initial display
+  function reset() {
+    form.reset();
+    error.classList.remove('active');
+    ratingControl.value(0);
+
+    successView.classList.remove('active');
+
+    formView.setAttribute('aria-hidden', false);
+    successView.setAttribute('aria-hidden', true);
+
+    const focusables = modalContent.querySelectorAll('form [tabindex="0"]');
+    focusableFirst = focusables[0];
+    focusableLast = focusables[focusables.length-1];
+  }
+
+  // shows the success div when the review is submitted
+  function showSuccess() {
+    const focusables = modalContent.querySelectorAll('.success [tabindex="0"]');
+    focusableFirst = focusables[0];
+    focusableLast = focusables[focusables.length-1];
+
+    formView.setAttribute('aria-hidden', true);
+    successView.setAttribute('aria-hidden', false);
+
+    successView.classList.add('active');
+    modal.focus();
+  }
+
+  // close if modal background (not content area) was clicked
+  function onClick(event) {
+    if (!event.path.some(el => el === modalContent)) {
+      hide();
+    }
+  }
+
+  form.onsubmit = event => {
+    // TODO remove test code
+    // showSuccess();
+    // return;
+
+    error.classList.remove('active');
+    error.offsetWidth // trigger animation if error already shown
+
+    if (ratingControl.value() === 0 || form.name.value.trim() === '') {
+      error.innerHTML = 'Your name and a rating are required.';
+      error.classList.add('active');
+      return false;
+    } else {
+      const review = {
+        restaurantId: self.restaurant.id,
+        rating: ratingControl.value(),
+        name: form.name.value.trim(),
+        comments: form.comments.value.trim()
+      };
+      console.log('submitting review', review);
+    }
+    return false;
+  }
+
+  function onKeyDown(e) {
+    // close on ESC
+    if (e.keyCode === 27) hide();
+
+      // keep keyboard tabbing within modal
+    if (e.keyCode === 9) {
+      const active = document.activeElement;
+      if (e.shiftKey) {
+        if (active === focusableFirst) {
+          e.preventDefault();
+          focusableLast.focus();
+        }
+      } else {
+        if (active === focusableLast) {
+          e.preventDefault();
+          focusableFirst.focus();
+        }
+      }
+    }
+  }
+
+  // returns boolean of whether a form changed
+  function formChanged() {
+    return ratingControl.value() !== 0 || Array.from(form).some(el => 'defaultValue' in el && el.defaultValue !== el.value.trim());
+  }
+
+  // opens and shows modal
+  function show() {
+    requestAnimationFrame(_ => {
+      reset();
+
+      previousActiveElement = document.activeElement;
+      document.body.classList.add('modal-active');
+      modal.setAttribute('aria-hidden', false);
+
+      modal.focus();
+
+      // add event listeners
+      document.addEventListener('keydown', onKeyDown);
+      modal.addEventListener('click', onClick);
+      cancelButton.addEventListener('click', hide);
+      closeButton.addEventListener('click', hide);
+      successButton.addEventListener('click', hide);
+    });
+  }
+
+  // closes and hides modal
+  function hide() {
+    // warn user before closing
+    if (formChanged() && !confirm("Discard your review?"))
+      return;
+
+    requestAnimationFrame(_ => {
+      document.body.classList.remove('modal-active');
+      modal.setAttribute('aria-hidden', true);
+
+      if (previousActiveElement) {
+        previousActiveElement.focus();
+        previousActiveElement = null;
+      }
+
+      // remove event listeners
+      document.removeEventListener('keydown', onKeyDown);
+      modal.removeEventListener('click', onClick);
+      cancelButton.removeEventListener('click', hide);
+      closeButton.removeEventListener('click', hide);
+      successButton.removeEventListener('click', hide);
+    })
+  }
+
+  return {
+    show,
+    hide
+  }
+})();

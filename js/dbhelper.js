@@ -208,6 +208,19 @@ class DBHelper {
     return marker;
   }
 
+  // escapes/sanitizes string inputted by user
+  static sanitize(unsafeString) {
+    if (!this._sanitizeDiv) this._sanitizeDiv = document.createElement('div');
+
+    this._sanitizeDiv.textContent = unsafeString;
+
+    // reduce memory footprint
+    const s = this._sanitizeDiv.innerHTML;
+    this._sanitizeDiv.textContent = '';
+
+    return s;
+  }
+
   // returns date string as January 1, 2018
   static getDateString(date) {
     const months = [

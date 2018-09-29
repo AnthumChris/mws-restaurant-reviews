@@ -35,8 +35,10 @@
           <table aria-label="hours" id="restaurant-hours"></table>
         </div>
       </div>
+
     </div>
 
+    <button class="write-review">✎ Write a Review</button>
     <section id="reviews-container">
       <ul id="reviews-list"></ul>
     </section>
@@ -47,6 +49,46 @@
     ©2017 <a href="/"><strong>Restaurant Reviews</strong></a> All Rights Reserved.
   </footer>
 
+  <div class="modal add-review-modal" aria-hidden="true">
+    <div class="modal-content">
+      <button tabindex="-1" type="button" class="modal-close"></button>
+      <h2>Add Your Review</h2>
+      <div class="view">
+        <div class="success" tabindex="-1">
+          <div>
+            <p>
+              Your review was added.  Check it out!
+            </p>
+            <p>
+              <button class="primary success-done" tabindex="0">Awesome</button>
+            </p>
+          </div>
+        </div>
+
+        <div class="form">
+          <form>
+            <input type="hidden" name="rating" value="0" />
+            <div class="review-rating clearfix" arial-label="Rating">
+              <i tabindex="0" aria-role="button" aria-label="One Star"></i>
+              <i tabindex="0" aria-role="button" aria-label="Two Stars"></i>
+              <i tabindex="0" aria-role="button" aria-label="Three Stars"></i>
+              <i tabindex="0" aria-role="button" aria-label="Four Stars"></i>
+              <i tabindex="0" aria-role="button" aria-label="Five Stars"></i>
+            </div>
+            <label for="form-name">Your Name</label>
+            <input id="form-name" type="text" name="name">
+            <label for="form-comments">Comments</label>
+            <textarea id="form-comments" tabindex="0" placeholder="Describe your experience..." name="comments" rows="5"></textarea>
+            <div class="error">Nope!</div>
+            <div class="buttons">
+              <button tabindex="0" class="cancel" type="button">Cancel</button>
+              <button tabindex="0" type="submit" class="primary">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="js/global.js"></script>
   <script src="js/lib/idb.js"></script>

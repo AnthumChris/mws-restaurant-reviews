@@ -107,6 +107,12 @@ main,
   font-size: 1rem;
 }
 
+.clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
 /* ================= Fixed Aspect Ratio Divs (i.e. For Images) ====================
    - prevents page jumping when slow images load
    - set padding-bottom to height/width
@@ -129,6 +135,154 @@ main,
 .x4-3:before {
   padding-top: calc(3/4*100%);
 }
+
+
+/* ====================== Modal ====================== */
+.modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0, 0.8);
+
+  will-change: opacity;
+  opacity: 0;
+  transition: opacity .25s ease;
+  pointer-events: none;
+}
+body.modal-active .modal {
+  opacity: 1;
+  pointer-events: all;
+}
+body.modal-active {
+  /* prevent background scrolling */
+  overflow: hidden;
+}
+.modal-content {
+  background: #fff;
+  padding: 1rem;
+  position: relative;
+  text-align: left;
+  overflow: hidden;
+  min-width: 300px;
+  height: 100%;
+}
+.modal-close {
+  position: absolute;
+  right: 0;
+  top: 0;
+  /*right: .25rem;*/
+  background: none;
+  display: block;
+  height: 3.5rem;
+  width: 3.5rem;
+  font-size: 1.5rem;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+}
+.modal-close:before {
+  content: '✕';
+}
+.modal-close:hover {
+  color: #000;
+}
+.modal h2 {
+  margin: 0 0 1em;
+  padding: 0;
+  font-weight: normal;
+  font-size: 1.5rem;
+  line-height: 1em;
+}
+
+
+/* ====================== Reviews Modal ====================== */
+.add-review-modal .view {
+  position: relative;
+}
+.add-review-modal .success {
+  position: relative;
+  position: absolute;
+  background: #fff;
+
+  align-items:  center;
+  text-align: center;
+  justify-content: center;
+
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  display: none;
+}
+.add-review-modal .success.active {
+  display: flex;
+}
+.add-review-modal .success p {
+  font-size: 1rem;
+}
+.add-review-modal label {
+  color: #333;
+  font-weight: bold;
+  margin: 1em 0 .5em;
+  display: block;
+}
+.add-review-modal .error {
+  font-size: 1rem;
+  text-align: left;
+  line-height: 1em;
+  margin: 0 0 .5em;
+  padding: .2em 0;
+  font-weight: normal;
+  opacity: 0;
+}
+.add-review-modal .error.active {
+  transition: opacity .25s ease-in;
+  opacity: 1;
+}
+.add-review-modal .error:before {
+  content: none;
+}
+.add-review-modal .review-rating {
+  margin: 0 0 1rem;
+  font-size: 2rem;
+}
+.add-review-modal, input[type=text],
+.add-review-modal textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: .5em;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+}
+.add-review-modal .buttons {
+  text-align: right;
+}
+.add-review-modal .view button {
+  border: none;
+  cursor: pointer;
+  background: #eaeaea;
+  font-size: 1rem;
+  padding: .5em 1em;
+  margin-left: .5em;
+}
+.add-review-modal button.primary {
+  background: #3f88ff;
+  color: white;
+}
+.add-review-modal .review-rating i {
+  padding: .25rem;
+  cursor: pointer;
+}
+.add-review-modal .review-rating i:before {
+  color: #e0e0e0;
+}
+.add-review-modal .review-rating i.active:before {
+  color: #f18200;
+}
+
 
 
 /* ====================== Navigation ====================== */
@@ -295,6 +449,16 @@ main,
   width: 100%;
 }
 
+button.write-review {
+  margin: 2rem 1rem 0;
+  display: inline-block;
+  border: 0;
+  color: #000;
+  font-size: 1rem;
+  padding: 1em;
+  background-color: orange;
+}
+
 
 .review {
   background: #fff;
@@ -327,16 +491,12 @@ main,
   line-height: 1.2rem;
   display: inline-block;
 }
-.review-rating {
-  overflow: hidden;
-}
 .review-body p {
   margin-bottom: 0;
 }
 .review-rating i {
   padding: 0;
   border: 0;
-  outline: 0;
   margin: 0;
   font-style: normal;
   float: left;
@@ -402,6 +562,18 @@ main,
   #restaurants-list .restaurant-info {
     width: 40%;
     padding-bottom: 0;
+  }
+
+  .modal {
+    display: flex;
+    align-items:  center;
+    text-align: center;
+    justify-content: center;
+  }
+  .modal-content {
+    height: auto;
+    border-radius: 4px;
+    min-width: 400px;
   }
 }
 
