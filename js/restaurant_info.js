@@ -41,7 +41,7 @@ loadRestaurant = () => {
       return reject('No restaurant id in URL');
     }
 
-    return DBHelper.fetchRestaurantById(id)
+    return DBHelper.fetchRestaurantWithReviews(id)
     .then(restaurant => {
       if (!restaurant) {
         return reject('No restaurant found for id '+id);

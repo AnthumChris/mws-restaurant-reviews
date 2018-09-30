@@ -1,4 +1,4 @@
-const cacheVer = 'v2.1'; // always use a string value, not int
+const cacheVer = 'v3.1'; // always use a string value, not int
 
 self.addEventListener('install', event => {
   event.waitUntil(

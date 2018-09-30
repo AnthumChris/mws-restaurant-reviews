@@ -13,68 +13,118 @@ class DBHelper {
   static _db() {
     if (this._dbPromise) return this._dbPromise;
 
-    // objectStore name
-    const osName = 'restaurants';
+    // objectStore names
+    const osRestaurantName = 'restaurants';
+    const osReviewName = 'reviews';
 
-    return this._dbPromise = idb.open('restaurantReviews', 1, upgradeDb => {
+    return this._dbPromise = idb.open('restaurantReviews', 2, upgradeDb => {
+      const transactionPromises = [];
+      let tx, os;
+
       // create/upgrade db
       switch (upgradeDb.oldVersion) {
         case 0:
-          upgradeDb.createObjectStore(osName, {keyPath: 'id'});
-          const tx = upgradeDb.transaction;
-          const os = tx.objectStore(osName);
+          upgradeDb.createObjectStore(osRestaurantName, {keyPath: 'id'});
+          tx = upgradeDb.transaction;
+          os = tx.objectStore(osRestaurantName);
           os.createIndex('neighborhood', 'neighborhood');
           os.createIndex('cuisine', 'cuisine_type');
           os.createIndex('neighborhood-cuisine', ['neighborhood', 'cuisine_type']); // compound index
-          return tx.complete;
+          transactionPromises.push(tx.complete);
+
+        case 1:
+          upgradeDb.createObjectStore(osReviewName, {keyPath: 'id'});
+          tx = upgradeDb.transaction;
+          os = tx.objectStore(osReviewName);
+          os.createIndex('restaurant', 'restaurant_id');
+
+          // indicate newly-added user reviews that require saving server/API
+          // New reviews will be added and saved to server when app is online.
+          os.createIndex('unsaved', 'unsaved');
+
+          transactionPromises.push(tx.complete);
       }
+
+      return Promise.all(transactionPromises);
     })
-    .then(db => {
-      let os = db.transaction(osName).objectStore(osName)
-      return os.count()
-      .then(total => {
-        if (total) {
-          // restaurants already populated
-          return db;
-        } else {
-          // restaurants not yet populated or deleted
-          console.log('Populating restaurants from network fetch')
-          return fetch(DBHelper.API_URL + '/restaurants/')
-          .then(resp => resp.json())
-          .then(list => {
-            const tx = db.transaction(osName, 'readwrite');
-            os = tx.objectStore(osName)
-            list.forEach(o => os.put(o));
-            return tx.complete.then(_ => db);
-          })
-        }
-      })
+    .then(readyDb => {
+      return Promise.all([
+        DBHelper._populateRestaurants(readyDb),
+        DBHelper._populateReviews(readyDb)
+      ]).then(() => {
+        console.log('restaurants/reviews populated in IDB');
+        return readyDb;
+      });
     })
+  }
+
+  static async _populateRestaurants(db) {
+    return await DBHelper._populateObjectStoreIfEmpty(db, 'restaurants', '/restaurants');
+  }
+
+  static async _populateReviews(db) {
+    return await DBHelper._populateObjectStoreIfEmpty(db, 'reviews', '/reviews');
+  }
+
+  static async _populateObjectStoreIfEmpty(db, osName, apiEndpoint) {
+    let os = db.transaction(osName).objectStore(osName);
+    const total = await os.count();
+
+    if (total) {
+      return Promise.resolve();
+    } else {
+      // restaurants not yet populated or deleted
+      console.log('Populating '+osName+' from '+apiEndpoint)
+      const list = await fetch(DBHelper.API_URL + apiEndpoint).then(resp => resp.json());
+
+      const tx = db.transaction(osName, 'readwrite');
+      os = tx.objectStore(osName)
+      list.forEach(o => os.put(o));
+      return tx.complete;
+    }
   }
 
   // returns promise that resolves to ObjectStore for restaurants
-  static _objectStore(transactionMode = 'readonly') {
+  static _restaurantOs(transactionMode = 'readonly') {
     return DBHelper._db().then(db => db.transaction('restaurants', transactionMode).objectStore('restaurants'));
   }
 
+  // returns promise that resolves to ObjectStore for reviews
+  static _reviewOs(transactionMode = 'readonly') {
+    return DBHelper._db().then(db => db.transaction('reviews', transactionMode).objectStore('reviews'));
+  }
+
   // Returns Promise that resolves with array of all restaurants from IndexedDB
+  // Excludes reviews
   static fetchRestaurants() {
-    return DBHelper._objectStore().then(os => os.getAll());
+    return DBHelper._restaurantOs().then(os => os.getAll());
   }
 
   // Returns Promise that resolves with restaurant from IndexedDB for specified ID
-  static fetchRestaurantById(id) {
-    return DBHelper._objectStore().then(os => os.get(id));
+  static async fetchRestaurantWithReviews(id) {
+    const restaurant = await DBHelper._restaurantOs().then(os => os.get(id));
+    restaurant.reviews = await DBHelper.fetchRestaurantReviews(id);
+    return restaurant;
   }
 
   // Fetch restaurants by a cuisine type
+  static async fetchRestaurantReviews(restaurantId) {
+    const reviews = await DBHelper._reviewOs().then(os => os.index('restaurant').getAll(restaurantId));
+
+    // set JS date objects
+    reviews.forEach(o => o.date = o.createdAt? DBHelper.getDateString(new Date(o.createdAt)) : '');
+    return reviews;
+  }
+
+
+  // Fetch restaurants by a cuisine type
   static fetchRestaurantByCuisine(cuisine) {
-    return DBHelper._objectStore().then(os => os.index('cuisine').getAll(cuisine));
+    return DBHelper._restaurantOs().then(os => os.index('cuisine').getAll(cuisine));
   }
 
   // Fetch restaurants by a neighborhood
   static fetchRestaurantByNeighborhood(neighborhood) {
-    return DBHelper._objectStore().then(os => os.index('neighborhood').getAll(neighborhood));
+    return DBHelper._restaurantOs().then(os => os.index('neighborhood').getAll(neighborhood));
   }
 
   // Fetch restaurants by a cuisine and a neighborhood
@@ -84,7 +134,7 @@ class DBHelper {
 
     // search with compound index search if both cuisine and neighborhood specified. Otherwise only use one index
     if (cuisineKey && neighborhoodKey)
-      return DBHelper._objectStore().then(os => os.index('neighborhood-cuisine').getAll([neighborhoodKey, cuisineKey]));
+      return DBHelper._restaurantOs().then(os => os.index('neighborhood-cuisine').getAll([neighborhoodKey, cuisineKey]));
     else if (cuisineKey) {
       return DBHelper.fetchRestaurantByCuisine(cuisineKey);
     } else if (neighborhoodKey) {
@@ -156,5 +206,24 @@ class DBHelper {
       animation: google.maps.Animation.DROP}
     );
     return marker;
+  }
+
+  // returns date string as January 1, 2018
+  static getDateString(date) {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ]
+    return months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
   }
 }
