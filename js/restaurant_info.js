@@ -145,7 +145,7 @@ const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
 }
 
 // adds review to in-memory list, re-displays the list, then queues it to be added
-const addNewReview = review => {
+const displayNewReview = review => {
   self.restaurant.reviews.unshift(review);
   fillReviewsHTML();
 }
@@ -327,10 +327,6 @@ App.AddReviewModal = (function() {
   }
 
   form.onsubmit = event => {
-    // TODO remove test code
-    // showSuccess();
-    // return;
-
     error.classList.remove('active');
     error.offsetWidth // trigger animation if error already shown
 
@@ -338,14 +334,13 @@ App.AddReviewModal = (function() {
       error.innerHTML = 'Your name and a rating are required.';
       error.classList.add('active');
     } else {
-      const review = {
-        restaurantId: self.restaurant.id,
-        date: DBHelper.getDateString(new Date()),
-        rating: DBHelper.sanitize(ratingControl.value()),
+      const review = DBHelper.saveNewReview({
+        restaurant_id: self.restaurant.id,
+        rating: ratingControl.value(),
         name: form.name.value.trim(),
-        comments: DBHelper.sanitize(form.comments.value.trim())
-      };
-      addNewReview(review);
+        comments: form.comments.value.trim()
+      });
+      displayNewReview(review);
       showSuccess();
     }
 

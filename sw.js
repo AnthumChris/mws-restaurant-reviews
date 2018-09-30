@@ -56,8 +56,8 @@ self.addEventListener('activate', event => {
 })
 
 self.addEventListener('fetch', event => {
-  // bypass when using local Browsersync
-  if (event.request.url.startsWith('http://localhost:3000/')) {
+  // only serve GET and bypass when using local Browsersync
+  if (event.request.method !== 'GET' || event.request.url.startsWith('http://localhost:3000/')) {
     return;
   }
 
