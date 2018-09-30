@@ -59,11 +59,11 @@ class DBHelper {
   }
 
   static async _populateRestaurants(db) {
-    return await DBHelper._populateObjectStoreIfEmpty(db, 'restaurants', '/restaurants');
+    return await DBHelper._populateObjectStoreIfEmpty(db, 'restaurants', '/restaurants?limit=-1');
   }
 
   static async _populateReviews(db) {
-    return await DBHelper._populateObjectStoreIfEmpty(db, 'reviews', '/reviews');
+    return await DBHelper._populateObjectStoreIfEmpty(db, 'reviews', '/reviews?limit=-1');
   }
 
   static async _populateObjectStoreIfEmpty(db, osName, apiEndpoint) {
