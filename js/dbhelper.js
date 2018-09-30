@@ -7,6 +7,23 @@ class DBHelper {
     return 'http://localhost:1337';
   }
 
+  // performs offline sync functions
+  static initOfflineSync() {
+    if (this._offlineSyncInitialized) return;
+
+    self.addEventListener('online', DBHelper.saveNewReviewsToServer);
+
+    DBHelper.saveNewReviewsToServer();
+    this._offlineSyncInitialized = true;
+  }
+
+  static saveNewReviewsToServer(onlineEvent) {
+    console.log('saveNewReviewsToServer()');
+    if (onlineEvent && onlineEvent.type === 'online') {
+      console.log('Web app is online again.')
+    }
+  }
+
   // Returns Promise with IndexexDB for restaurants.  If ObjectStore is empty,
   // restaurants are fetched from the network and populated to the ObjectStore
   // This function is synchronizosed (_dbPromise) to prevent multiple network fetches
@@ -104,6 +121,10 @@ class DBHelper {
   static async fetchRestaurantWithReviews(id) {
     const restaurant = await DBHelper._restaurantOs().then(os => os.get(id));
     restaurant.reviews = await DBHelper.fetchRestaurantReviews(id);
+
+    // sort reviews by descending createdAt time (newest first)
+    restaurant.reviews.sort((a,b) => b.createdAt - a.createdAt);
+
     return restaurant;
   }
 
@@ -208,10 +229,42 @@ class DBHelper {
     return marker;
   }
 
+  static saveNewReview(reviewFormData) {
+    const timestamp = new Date().getTime();
+
+    // create the new review to save to IDB. Sanitize all values
+    // and mark it "unsaved" for later synching with server.
+    // assign timestamp as ID until server provides a new key after sync
+    const review = {
+      id: timestamp,
+      restaurant_id: reviewFormData.restaurant_id,
+      name: DBHelper.sanitize(reviewFormData.name),
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      rating: reviewFormData.rating,
+      comments: DBHelper.sanitize(reviewFormData.comments),
+      date: DBHelper.getDateString(new Date(timestamp)),
+      unsaved: true
+    }
+
+    DBHelper._reviewOs('readwrite').then(os => os.put(review));
+
+    // fetch(DBHelper.API_URL +'/reviews/', {
+    //   method: 'POST',
+    //   headers: {
+    //     "Content-Type": "application/json; charset=utf-8"
+    //   },
+    //   body: JSON.stringify(review)
+    // }).then(resp => resp.json()).then(review => {
+    //   console.log('posted review', review)
+    // })
+
+    return review;
+  }
+
   // escapes/sanitizes string inputted by user
   static sanitize(unsafeString) {
     if (!this._sanitizeDiv) this._sanitizeDiv = document.createElement('div');
-
     this._sanitizeDiv.textContent = unsafeString;
 
     // reduce memory footprint
@@ -240,3 +293,5 @@ class DBHelper {
     return months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
   }
 }
+
+DBHelper.initOfflineSync();
