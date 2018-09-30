@@ -5,6 +5,7 @@ self.addEventListener('install', event => {
     caches.open(cacheVer).then(cache => {
       return cache.addAll(
         [
+          '/',
           '/index.html',
           '/restaurant.html',
           '/manifest.json',
