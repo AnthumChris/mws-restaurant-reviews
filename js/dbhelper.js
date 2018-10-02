@@ -1,3 +1,4 @@
+let tx;
 /**
  * Common database helper functions.
  */
@@ -11,17 +12,78 @@ class DBHelper {
   static initOfflineSync() {
     if (this._offlineSyncInitialized) return;
 
-    self.addEventListener('online', DBHelper.saveNewReviewsToServer);
+    self.addEventListener('offline', _ => console.log('Web app is offline 🙁'));
+    self.addEventListener('online', DBHelper.saveNewDataToServer);
 
-    DBHelper.saveNewReviewsToServer();
+    DBHelper.saveNewDataToServer();
     this._offlineSyncInitialized = true;
   }
 
-  static saveNewReviewsToServer(onlineEvent) {
-    console.log('saveNewReviewsToServer()');
-    if (onlineEvent && onlineEvent.type === 'online') {
-      console.log('Web app is online again.')
+  // IDB transactions close if not used immediatly, so perform all HTTP fetches
+  // and process saved items in one fell swoop.
+  // get all unsaved reviews (unsaved == 1) and POST to api server
+  static async _saveNewReviewsToServer() {
+    const results = await DBHelper._reviewOs().then(os => os.index('unsaved').getAll(1));
+    console.log('new reviews', results);
+
+    // POST results to server and get savedItems successfully saved
+    const savedItems = await new Promise(resolve => {
+      const fetches = results.map(object => {
+        // timestamp id will be replaced with ID provided by API upon insert
+        const oldId = object.id;
+        delete object.id;
+        delete object.unsaved;
+
+        return fetch(DBHelper.API_URL +'/reviews/', {
+          method: 'POST',
+          headers: {"Content-Type": "application/json; charset=utf-8"},
+          body: JSON.stringify(object)
+        })
+        .then(resp => resp.json())
+        .then(json => json.id)
+        .then(newId => {
+          object.id = newId;
+          return {[oldId]: object};
+        })
+        .catch(error => {
+          console.error('could not save Review', oldId);
+        })
+      })
+
+      // convert array of objects into 1 object with unique keys of oldIds
+      return Promise.all(fetches).then(objectArray => resolve(Object.assign({},...objectArray)));
+    })
+
+    // we can't update IDB key, so delete object with old key and add object with new key
+    console.log('saved reviews', savedItems);
+    const os = await DBHelper._reviewOs('readwrite');
+    let deleteCursor = await os.index('unsaved').openCursor(1);
+    while (deleteCursor) {
+      console.log(deleteCursor.value);
+      const oldId = deleteCursor.value.id;
+      console.log('oldId', oldId);
+      if (oldId in savedItems) {
+        console.log('deleting', oldId);
+        deleteCursor.delete().then(_ => os.put(savedItems[oldId]));
+      }
+      deleteCursor = await deleteCursor.continue();
     }
+  }
+
+  // get all modified restaurants (unsaved == 1) and PUT to api server
+  static async _saveChangedRestaurantsToServer() {
+    const results = await DBHelper._restaurantOs().then(os => os.index('unsaved').getAll(1));
+    console.log('modified restaurants', results);
+  }
+
+  static saveNewDataToServer(onlineEvent) {
+    console.log('saveNewDataToServer()');
+    if (onlineEvent && onlineEvent.type === 'online') {
+      console.log('Web app is online 🎉');
+    }
+
+    DBHelper._saveNewReviewsToServer();
+    DBHelper._saveChangedRestaurantsToServer();
   }
 
   // Returns Promise with IndexexDB for restaurants.  If ObjectStore is empty,
@@ -47,6 +109,11 @@ class DBHelper {
           os.createIndex('neighborhood', 'neighborhood');
           os.createIndex('cuisine', 'cuisine_type');
           os.createIndex('neighborhood-cuisine', ['neighborhood', 'cuisine_type']); // compound index
+
+          // indicate newly-updated restaurants that require saving server/API
+          // Adding/removing favorites will flag restaurants to be updated to server
+          os.createIndex('unsaved', 'unsaved');
+
           transactionPromises.push(tx.complete);
 
         case 1:
@@ -244,21 +311,10 @@ class DBHelper {
       rating: reviewFormData.rating,
       comments: DBHelper.sanitize(reviewFormData.comments),
       date: DBHelper.getDateString(new Date(timestamp)),
-      unsaved: true
+      unsaved: 1
     }
 
     DBHelper._reviewOs('readwrite').then(os => os.put(review));
-
-    // fetch(DBHelper.API_URL +'/reviews/', {
-    //   method: 'POST',
-    //   headers: {
-    //     "Content-Type": "application/json; charset=utf-8"
-    //   },
-    //   body: JSON.stringify(review)
-    // }).then(resp => resp.json()).then(review => {
-    //   console.log('posted review', review)
-    // })
-
     return review;
   }
 
