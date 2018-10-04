@@ -1,5 +1,20 @@
 # Release Notes
 
+### Submission v3.1
+1. New reviews can be added and are saved to IDB
+1. Add/Remove favorite restaurants is available on all pages
+1. New reviews and modified restaurants in IDB are synchronized to the API server when the browser is online.
+1. If the browser is offline, all API server synchs are performed when the browser comes back online
+    1. `DBHelper.initOfflineSync()` uses [online/offline events](https://developer.mozilla.org/en-US/docs/Web/API/NavigatorOnLine/Online_and_offline_events) instead of Service Worker `SyncManager` because [SyncManager is not well-supported standard](https://developer.mozilla.org/en-US/docs/Web/API/SyncManager#Browser_compatibility). 
+1. Both pages show UI errors during page load when things fail.
+1. Home page now caches correctly
+1. Chrome 69 Lighthouse audits for both mobile/desktop for both pages are showing:
+    1. Accessiblity: __100__
+    1. Progressive Web App: __100__ (92 if https redirection is not configured)
+    1. Performance: __100__ (no throttling enabled)
+
+
+
 ### Submission v2.1
 1. External JSON Api is used instead of static JSON file
 1. IndexedDB is used after first `/restaurants` fetch is stored
