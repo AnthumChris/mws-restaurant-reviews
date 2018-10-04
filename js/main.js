@@ -161,7 +161,7 @@ createRestaurantHTML = (restaurant) => {
         image = document.createElement('img'),
         aspectRatio = document.createElement('div'),
         name = document.createElement('h2'),
-        favorite = DBHelper.getFavoritesButton(restaurant);
+        favorite = document.createElement('button');
         neighborhood = document.createElement('p')
         address = document.createElement('p'),
         more = document.createElement('a');
@@ -194,6 +194,7 @@ createRestaurantHTML = (restaurant) => {
   more.setAttribute('aria-label', 'view restaurant details for '+restaurant.name);
   info.append(more)
 
+  DBHelper.favoriteButtonInit(favorite, restaurant);
   favorite.tabIndex = 0;
   info.append(favorite);
 
