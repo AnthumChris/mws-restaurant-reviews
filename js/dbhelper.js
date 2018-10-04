@@ -307,11 +307,9 @@ class DBHelper {
   }
 
   // Favorites button.  Binds click events too
-  static getFavoritesButton(restaurant) {
-    const button = document.createElement('button');
-
+  static favoriteButtonInit(button, restaurant) {
     button.className = 'favorite';
-    DBHelper.setFavoriteButton(button, restaurant.is_favorite);
+    DBHelper._setFavoriteButton(button, restaurant.is_favorite);
     button.dataset.restaurantId = restaurant.id;
     button.addEventListener('click', DBHelper.toggleRestaurantFavorite);
     return button;
@@ -328,13 +326,13 @@ class DBHelper {
       restaurant.is_favorite = !isFavorite;
       restaurant.unsaved = 1;
       os.put(restaurant).then(_ => {
-        DBHelper.setFavoriteButton(el, !isFavorite);
+        DBHelper._setFavoriteButton(el, !isFavorite);
         DBHelper.saveChangedRestaurantsToServer();
       })
     }
   }
 
-  static setFavoriteButton(button, isFavorite) {
+  static _setFavoriteButton(button, isFavorite) {
     button.classList.toggle('is-favorite', isFavorite);
     let label = isFavorite? 'Remove from Favorites' : 'Add to Favorites';
     button.setAttribute('aria-label', label);

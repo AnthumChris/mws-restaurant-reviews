@@ -447,6 +447,10 @@ body.modal-active {
   padding: 1rem;
   background: #fff;
 }
+.restaurant-details .favorite {
+  margin-left: -0.5rem;
+  opacity: 0; /* hide until JS enables */
+}
 .restaurant-details .hours td span {
   white-space: nowrap;
 }
@@ -619,19 +623,6 @@ button.write-review {
     box-sizing: border-box;
   }
 
-  .restaurant-details .image-hours {
-    display: flex;
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
-  }
-  .restaurant-details .image {
-    width: 37%;
-  }
-  .restaurant-details .hours {
-    padding-top: 0;
-    flex: 1;
-  }
-
   #reviews-list {
     display: flex;
     flex-wrap: wrap;
@@ -670,6 +661,21 @@ button.write-review {
   #restaurants-list .restaurant-info {
     width: 100%;
     padding-bottom: 1rem;
+  }
+}
+
+@media (min-width: 700px) {
+  .restaurant-details .image-hours {
+    display: flex;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+  }
+  .restaurant-details .image {
+    width: 45%;
+  }
+  .restaurant-details .hours {
+    padding-top: 0;
+    flex: 1;
   }
 }
 
