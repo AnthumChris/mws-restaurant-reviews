@@ -92,6 +92,8 @@ class DBHelper {
 
   // get all unsaved reviews (unsaved == 1) and POST to api server
   static async saveNewReviewsToServer() {
+    if (navigator.onLine === false) return;
+
     // get results where unsaved == 1
     const results = await DBHelper._reviewOs().then(os => os.index('unsaved').getAll(1));
     console.log('reviews pending save', results);
@@ -128,6 +130,8 @@ class DBHelper {
 
   // get all modified restaurants (unsaved == 1) and PUT to api server
   static async saveChangedRestaurantsToServer() {
+    if (navigator.onLine === false) return;
+
     // get results where unsaved == 1
     const results = await DBHelper._restaurantOs().then(os => os.index('unsaved').getAll(1));
     console.log('restaurants pending save', results);
