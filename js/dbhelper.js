@@ -302,6 +302,42 @@ class DBHelper {
     `)
   }
 
+  // Favorites button.  Binds click events too
+  static getFavoritesButton(restaurant) {
+    const button = document.createElement('button');
+
+    button.className = 'favorite';
+    DBHelper.setFavoriteButton(button, restaurant.is_favorite);
+    button.dataset.restaurantId = restaurant.id;
+    button.addEventListener('click', DBHelper.toggleRestaurantFavorite);
+    return button;
+  }
+
+  static async toggleRestaurantFavorite(event) {
+    const el = this;
+    const id = parseInt(el.dataset.restaurantId);
+    const isFavorite = el.classList.contains('is-favorite');
+
+    const os = await DBHelper._restaurantOs('readwrite');
+    const restaurant = await os.get(id);
+    if (restaurant) {
+      restaurant.is_favorite = !isFavorite;
+      restaurant.unsaved = 1;
+      os.put(restaurant).then(_ => {
+        DBHelper.setFavoriteButton(el, !isFavorite);
+        DBHelper.saveChangedRestaurantsToServer();
+      })
+    }
+  }
+
+  static setFavoriteButton(button, isFavorite) {
+    button.classList.toggle('is-favorite', isFavorite);
+    let label = isFavorite? 'Remove from Favorites' : 'Add to Favorites';
+    button.setAttribute('aria-label', label);
+    button.setAttribute('title', label)
+  }
+
+
   // Map marker for a restaurant.
   static mapMarkerForRestaurant(restaurant, map) {
     const marker = new google.maps.Marker({
