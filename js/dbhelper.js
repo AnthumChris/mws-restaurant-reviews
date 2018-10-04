@@ -1,4 +1,3 @@
-let tx;
 /**
  * Common database helper functions.
  */
@@ -8,83 +7,6 @@ class DBHelper {
     return 'http://localhost:1337';
   }
 
-  // performs offline sync functions
-  static initOfflineSync() {
-    if (this._offlineSyncInitialized) return;
-
-    self.addEventListener('offline', _ => console.log('Web app is offline 🙁'));
-    self.addEventListener('online', DBHelper.saveNewDataToServer);
-
-    DBHelper.saveNewDataToServer();
-    this._offlineSyncInitialized = true;
-  }
-
-  // IDB transactions close if not used immediatly, so perform all HTTP fetches
-  // and process saved items in one fell swoop.
-  // get all unsaved reviews (unsaved == 1) and POST to api server
-  static async _saveNewReviewsToServer() {
-    const results = await DBHelper._reviewOs().then(os => os.index('unsaved').getAll(1));
-    console.log('new reviews', results);
-
-    // POST results to server and get savedItems successfully saved
-    const savedItems = await new Promise(resolve => {
-      const fetches = results.map(object => {
-        // timestamp id will be replaced with ID provided by API upon insert
-        const oldId = object.id;
-        delete object.id;
-        delete object.unsaved;
-
-        return fetch(DBHelper.API_URL +'/reviews/', {
-          method: 'POST',
-          headers: {"Content-Type": "application/json; charset=utf-8"},
-          body: JSON.stringify(object)
-        })
-        .then(resp => resp.json())
-        .then(json => json.id)
-        .then(newId => {
-          object.id = newId;
-          return {[oldId]: object};
-        })
-        .catch(error => {
-          console.error('could not save Review', oldId);
-        })
-      })
-
-      // convert array of objects into 1 object with unique keys of oldIds
-      return Promise.all(fetches).then(objectArray => resolve(Object.assign({},...objectArray)));
-    })
-
-    // we can't update IDB key, so delete object with old key and add object with new key
-    console.log('saved reviews', savedItems);
-    const os = await DBHelper._reviewOs('readwrite');
-    let deleteCursor = await os.index('unsaved').openCursor(1);
-    while (deleteCursor) {
-      console.log(deleteCursor.value);
-      const oldId = deleteCursor.value.id;
-      console.log('oldId', oldId);
-      if (oldId in savedItems) {
-        console.log('deleting', oldId);
-        deleteCursor.delete().then(_ => os.put(savedItems[oldId]));
-      }
-      deleteCursor = await deleteCursor.continue();
-    }
-  }
-
-  // get all modified restaurants (unsaved == 1) and PUT to api server
-  static async _saveChangedRestaurantsToServer() {
-    const results = await DBHelper._restaurantOs().then(os => os.index('unsaved').getAll(1));
-    console.log('modified restaurants', results);
-  }
-
-  static saveNewDataToServer(onlineEvent) {
-    console.log('saveNewDataToServer()');
-    if (onlineEvent && onlineEvent.type === 'online') {
-      console.log('Web app is online 🎉');
-    }
-
-    DBHelper._saveNewReviewsToServer();
-    DBHelper._saveChangedRestaurantsToServer();
-  }
 
   // Returns Promise with IndexexDB for restaurants.  If ObjectStore is empty,
   // restaurants are fetched from the network and populated to the ObjectStore
@@ -110,10 +32,6 @@ class DBHelper {
           os.createIndex('cuisine', 'cuisine_type');
           os.createIndex('neighborhood-cuisine', ['neighborhood', 'cuisine_type']); // compound index
 
-          // indicate newly-updated restaurants that require saving server/API
-          // Adding/removing favorites will flag restaurants to be updated to server
-          os.createIndex('unsaved', 'unsaved');
-
           transactionPromises.push(tx.complete);
 
         case 1:
@@ -122,8 +40,16 @@ class DBHelper {
           os = tx.objectStore(osReviewName);
           os.createIndex('restaurant', 'restaurant_id');
 
+          // "unsaved" property indicates items that must be saved to server
+          // should be null (false) or 1 (true).  IDB doesn't allow boolean keys :/
+
           // indicate newly-added user reviews that require saving server/API
           // New reviews will be added and saved to server when app is online.
+          os.createIndex('unsaved', 'unsaved');
+
+          // indicate newly-updated restaurants that require saving server/API
+          // Adding/removing favorites will flag restaurants to be updated to server
+          os = tx.objectStore(osRestaurantName);
           os.createIndex('unsaved', 'unsaved');
 
           transactionPromises.push(tx.complete);
@@ -139,6 +65,96 @@ class DBHelper {
         console.log('restaurants/reviews populated in IDB');
         return readyDb;
       });
+    })
+  }
+
+
+  // performs offline sync functions
+  static initOfflineSync() {
+    if (this._offlineSyncInitialized) return;
+
+    self.addEventListener('offline', _ => console.log('Web app is offline 🙁'));
+    self.addEventListener('online', DBHelper.saveNewDataToServer);
+
+    DBHelper.saveNewDataToServer();
+    this._offlineSyncInitialized = true;
+  }
+
+  static saveNewDataToServer(onlineEvent) {
+    console.log('saveNewDataToServer()');
+    if (onlineEvent && onlineEvent.type === 'online') {
+      console.log('Web app is online 🎉');
+    }
+    DBHelper.saveNewReviewsToServer();
+    DBHelper.saveChangedRestaurantsToServer();
+  }
+
+
+  // get all unsaved reviews (unsaved == 1) and POST to api server
+  static async saveNewReviewsToServer() {
+    // get results where unsaved == 1
+    const results = await DBHelper._reviewOs().then(os => os.index('unsaved').getAll(1));
+    console.log('reviews pending save', results);
+
+    if (!results.length) return;
+
+    results.forEach(object => {
+      // timestamp id will be replaced with ID provided by API upon insert
+      const oldId = object.id;
+      delete object.id;
+      object.unsaved = null;
+
+      return fetch(DBHelper.API_URL +'/reviews/', {
+        method: 'POST',
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: JSON.stringify(object)
+      })
+      .then(resp => resp.json())
+      .then(json => {
+        // ensure server added
+        if (!json.id)
+          throw Error('Server did not save review');
+
+        DBHelper._reviewOs('readwrite').then(os => {
+          object.id = json.id;
+
+          // we can't update IDB key, so delete object with old key and add object back with new key
+          os.delete(oldId);
+          os.add(object);
+        })
+      })
+    })
+  }
+
+  // get all modified restaurants (unsaved == 1) and PUT to api server
+  static async saveChangedRestaurantsToServer() {
+    // get results where unsaved == 1
+    const results = await DBHelper._restaurantOs().then(os => os.index('unsaved').getAll(1));
+    console.log('restaurants pending save', results);
+
+    results.forEach(object => {
+      object.unsaved = null;
+
+      // PUT using message body; not URL param is_favorite. URL param makes the API store
+      // boolean values as String and not boolean.
+      return fetch(`${DBHelper.API_URL}/restaurants/${object.id}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/javascript'
+        },
+        body: JSON.stringify({is_favorite: object.is_favorite})
+      })
+      .then(resp => resp.json())
+      .then(json => {
+        // ensure server updated successfully
+        if (json.is_favorite !== object.is_favorite)
+          throw Error('Server did not update restaurant');
+
+        DBHelper._restaurantOs('readwrite').then(os => os.put(object));
+      })
+      .catch(error => {
+        console.error('could not save restaurant', error);
+      })
     })
   }
 
@@ -163,7 +179,10 @@ class DBHelper {
 
       const tx = db.transaction(osName, 'readwrite');
       os = tx.objectStore(osName)
-      list.forEach(o => os.put(o));
+      list.forEach(o => {
+        o.unsaved = null;
+        os.put(o)
+      });
       return tx.complete;
     }
   }
@@ -234,7 +253,6 @@ class DBHelper {
   }
 
   // returns a Promise that resolves with array of unique IndexedDB key values for indexName
-  // TODO refactor this to use IndexedDB query for both fields
   static uniqueIndexValues(indexName) {
     const keyValues = [];
     return DBHelper._db().then(db => {
@@ -296,12 +314,12 @@ class DBHelper {
     return marker;
   }
 
+  // create the new review to save to IDB. Sanitize all values
+  // and mark it "unsaved" for later synching with server.
+  // assign timestamp as ID until server provides a new key after sync
   static saveNewReview(reviewFormData) {
     const timestamp = new Date().getTime();
 
-    // create the new review to save to IDB. Sanitize all values
-    // and mark it "unsaved" for later synching with server.
-    // assign timestamp as ID until server provides a new key after sync
     const review = {
       id: timestamp,
       restaurant_id: reviewFormData.restaurant_id,
@@ -314,7 +332,8 @@ class DBHelper {
       unsaved: 1
     }
 
-    DBHelper._reviewOs('readwrite').then(os => os.put(review));
+    DBHelper._reviewOs('readwrite').then(os => os.put(review)).then(DBHelper.saveNewReviewsToServer);
+
     return review;
   }
 
